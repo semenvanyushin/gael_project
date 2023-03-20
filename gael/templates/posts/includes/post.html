@@ -1,0 +1,14 @@
+{% load thumbnail %}
+<div class="card m-1" style="width: 19rem;">
+  {% thumbnail post.game.logo "900x480" crop="center" upscale=True as im %}
+      <img class="card-img my-2" src="{{ im.url }}">
+  {% endthumbnail %}
+  <div class="card-body blank-1">
+    <small>Игра: <span style="color:blue">{{ post.game.name }} {{ post.game.type_activation }}</span> ({{ post.game.organizer }})</small><br>
+    <small>Владелец: <a href="{% url 'posts:profile' post.author.username %}"><span style="color:blue">{{ post.author.username }}</span></a></small><br>
+    <small>Цена: <span style="color:blue">{{ post.price }} руб.</span></small></li><br>
+    <small>Вариант оплаты: <span style="color:blue">{{ post.type_payment }}</span></small><br>
+    <br>
+    {% include 'posts/includes/post_buttons.html' %}
+  </div>
+</div>

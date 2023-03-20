@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Custom 403{% endblock %}
+{% block content %}
+  <div class="container py-3">
+    <div class="row justify-content-center">
+      <div class="col-md- p-5">
+        <div class="card">
+          <div class="card-header">
+            403 Forbidden
+          </div>
+          <div class="card-body">
+            <p>В доступе отказано.</p>
+            <a href="{% url 'posts:index' %}">Перейти на главную страницу</a>
+          </div>
+        </div>
+      </div>      
+    </div>
+  </div> 
+{% endblock %}

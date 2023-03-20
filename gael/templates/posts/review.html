@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Отзывы{% endblock %}
+{% block content %}
+  <div class="container"> 
+    {% include 'posts/includes/profile_navbar.html' %}
+    <hr>
+    <div class="container">
+      {% if request.user != author %}
+      <div>
+        <a class="btn btn-sm btn-primary" href="{% url 'posts:review_create' author.username %}" role="button">
+          Оставить отзыв
+        </a>
+      </div>
+      {% endif %}
+      <br>
+      <div class="row row-cols-3">  
+        {% for review in reviews %}
+          <div class="card m-1 {% if review.score == 1 %}border-success{% elif review.score == 0 %}border-dark{% else %}border-danger{% endif %}" style="width: 25rem">
+            <div class="d-flex justify-content-between">
+              <div>
+                <a class="btn" href="{% url 'posts:profile' review.author.username %}"><span style="color:blue"><small>{{ review.author.username }}</span></small></a>
+                {% if request.user == review.author%}
+                  <a class="btn" href="{% url 'posts:review_delete' author.username review.id %}"><span style="color:red"><small>удалить</small></span></a>
+                {% endif %}
+              </div>
+              <div class="d-flex justify-content-end">
+                <span style="color:darkgray"><small>{{ review.pub_date|date:"j F Y" }}</span></small>
+              </div>
+            </div>
+            <div class="card-body">{% if review.score == 1 %}<span style="color:green">{% elif review.score == 0 %}<span style="color:darkgray">{% else %}<span style="color:red">{% endif %}<small>{{ review.text }}</small></span></div>
+          </div>
+          {% empty %}
+            <div class="col">
+              <div class="card text-center">
+                <div class="card-header">
+                  <h5>Записи не найдены</h5>
+                </div>
+                <div class="card-body">
+                  <p class="card-text">У {{ user.username }} отсутствуют отзывы</p>
+                  {% if request.user != author %}
+                    <a class="btn btn-sm btn-primary" href="{% url 'posts:review_create' author.username %}" role="button">
+                      Оставить отзыв
+                    </a>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+        {% endfor %}
+      </div>
+    </div>
+    <br>
+  </div>
+{% endblock %}

@@ -1,0 +1,23 @@
+<nav class="navbar navbar-light" style="background-color: white">
+  <div class="container" style="height: 25px">
+    <a class="navbar-brand" href="{% url 'posts:profile' author.username %}">
+      <h4><span style="color:blue">{{ author.username }}</span></h4>
+    </a>
+    <ul class="nav nav-tabs">
+      {% with request.resolver_match.view_name as view_name %}
+      <li class="nav-item">
+        <a class="nav-link {% if view_name == 'posts:review' %}active{% endif %}" href="{% url 'posts:review' author.username %}"><small>Отзывы</small></a>
+      </li>
+      {% if request.user != author %}
+      <li class="nav-item">
+        <a class="nav-link" href="" role="button"><small>Личное сообщение</small></a>
+      </li>
+      {% else %}
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'posts:post_create' %}" role="button"><small>Добавить игру в маркет</small></a>
+        </li>
+      {% endif %}
+      {% endwith %}
+    </ul>
+  </div>
+</nav>
