@@ -14,7 +14,7 @@ python3 -m venv venv # MacOS и Linux
 python -m venv venv # Windows
 ```
 ```bash
-source /venv/bin/activated # MacOS и Linux
+source venv/bin/activate # MacOS и Linux
 source venv\Scripts\activate # Windows
 ```
 Установка зависимостей из файла requirements.txt:
