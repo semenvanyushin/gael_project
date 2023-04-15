@@ -1,39 +1,29 @@
 from django.contrib import admin
 
-from posts.models import Game, PostSale, Review
-
-
-@admin.register(Game)
-class Game(admin.ModelAdmin):
-    list_display = (
-        'id',
-        'name',
-        'organizer',
-        'type_activation',
-        'store_region'
-    )
-    search_fields = ('name', 'organizer')
-    list_filter = ('name', 'organizer', 'store_region')
-    empty_value_display = '-пусто-'
+from posts.models import FavoritePost, PostSale, Review
 
 
 @admin.register(PostSale)
 class PostSale(admin.ModelAdmin):
     list_display = (
         'id',
-        'author',
+        'get_username',
         'game',
         'price',
         'type_payment',
         'pub_date'
     )
-    search_fields = ('author', 'get_game_name', 'pub_date')
-    list_filter = ('author', 'game', 'pub_date')
+    search_fields = ('get_game_name', 'pub_date')
+    list_filter = ('game', 'pub_date')
     empty_value_display = '-пусто-'
 
     @admin.display(description='Название игры')
     def get_game_name(self, obj):
         return obj.game.name
+
+    @admin.display(description='Автор')
+    def get_username(self, obj):
+        return obj.author.username
 
 
 @admin.register(Review)
@@ -49,3 +39,27 @@ class Review(admin.ModelAdmin):
     search_fields = ('user', 'author', 'score')
     list_filter = ('user', 'author', 'pub_date')
     empty_value_display = '-пусто-'
+
+
+@admin.register(FavoritePost)
+class FavoritePost(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'get_username',
+        'get_post_sale',
+        'creation_date',
+    )
+    search_fields = ('get_post_sale',)
+    list_filter = ('creation_date',)
+    empty_value_display = '-пусто-'
+
+    @admin.display(description='Пост о продаже')
+    def get_post_sale(self, obj):
+        return '\n '.join([
+            f'{item["author"]} - {item["game"]} {item["price"]} руб.'
+            for item in obj.post_sale.values('author', 'game', 'price')
+        ])
+
+    @admin.display(description='Пользователь')
+    def get_username(self, obj):
+        return obj.user.username

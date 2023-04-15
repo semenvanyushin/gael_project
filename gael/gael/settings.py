@@ -35,15 +35,16 @@ CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS').split(' ')
 # Application definition
 
 INSTALLED_APPS = [
-    'posts.apps.PostsConfig',
-    'users.apps.UsersConfig',
-    'core.apps.CoreConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'posts.apps.PostsConfig',
+    'users.apps.UsersConfig',
+    'core.apps.CoreConfig',
+    'games.apps.GamesConfig',
     'sorl.thumbnail',
 ]
 

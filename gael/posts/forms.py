@@ -14,6 +14,10 @@ class PostSaleForm(forms.ModelForm):
             'type_payment': 'Вариант оплаты',
         }
 
+    def __init__(self, *args, **kwargs):
+        super(PostSaleForm, self).__init__(*args, **kwargs)
+        self.fields['game'].empty_label = " Выбери игру "
+
 
 class ReviewForm(forms.ModelForm):
 
@@ -22,8 +26,5 @@ class ReviewForm(forms.ModelForm):
         fields = ['text', 'score']
         labels = {
             'text': 'Текст отзыва',
-            'score': 'Оценка',
-        }
-        help_texts = {
-            'score': 'Варианты: 1, 0 или -1'
+            'score': 'Тип отзыва',
         }

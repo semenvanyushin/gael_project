@@ -1,54 +1,9 @@
 from django.contrib.auth import get_user_model
-from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
+from games.models import Game
+
 User = get_user_model()
-
-
-class Game(models.Model):
-    owner = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='owner',
-        verbose_name='владелец',
-    )
-    name = models.CharField(
-        'Название игры',
-        max_length=150,
-    )
-    login = models.CharField(
-        'Учетная запись игры',
-        max_length=150,
-    )
-    organizer = models.CharField(
-        'Организатор',
-        max_length=100,
-    )
-    platform = models.CharField(
-        'Платформа',
-        max_length=50
-    )
-    type_activation = models.CharField(
-        'Тип активации',
-        max_length=10,
-    )
-    store_region = models.CharField(
-        'Регион магазина',
-        max_length=50,
-    )
-    logo = models.ImageField(
-        'Логотип игры',
-        upload_to='static/posts/',
-        blank=True
-    )
-
-    class Meta:
-        ordering = ('name',)
-        verbose_name = 'Игра'
-        verbose_name_plural = 'Игры'
-
-    def __str__(self):
-        return f'{self.name}, {self.organizer}'
 
 
 class PostSale(models.Model):
@@ -67,7 +22,7 @@ class PostSale(models.Model):
     price = models.IntegerField('Цена')
     type_payment = models.CharField(
         'Вариант оплаты',
-        max_length=100
+        max_length=255
     )
     pub_date = models.DateTimeField(
         'Дата публикации',
@@ -94,36 +49,49 @@ class FavoritePost(models.Model):
         PostSale,
         related_name='favorite_post',
         verbose_name='Избранный пост')
+    creation_date = models.DateTimeField(
+        'Дата добавления',
+        auto_now_add=True,
+    )
 
     class Meta:
+        ordering = ('-creation_date',)
         verbose_name = 'Избранный пост'
         verbose_name_plural = 'Избранные посты'
 
     def __str__(self):
-        favorite = [item['name'] for item in self.post_sale.values('game')]
-        return f'{self.user} добавил {favorite} в избранное.'
+        favorite = [item['game'] for item in self.post_sale.values('game')]
+        return f'{self.user.username} добавил {favorite} в избранное.'
 
 
 class Review(models.Model):
-    user = models.ForeignKey(
+    NEUTRAL = 'NT'
+    POSITIVE = 'PV'
+    NEGATIVE = 'NV'
+    SCORE_CHOICES = (
+        (POSITIVE, 'Положительный'),
+        (NEUTRAL, 'Нейтральный'),
+        (NEGATIVE, 'Отрицательный'),
+    )
+
+    author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='user',
         verbose_name='Пользователь'
     )
     text = models.TextField('Текст отзыва')
-    author = models.ForeignKey(
+    user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='author',
         verbose_name='Автор отзыва'
     )
-    score = models.IntegerField(
-        'Оценка',
-        validators=(
-            MinValueValidator(-1),
-            MaxValueValidator(1)
-        )
+    score = models.CharField(
+        'оценка',
+        max_length=2,
+        choices=SCORE_CHOICES,
+        default=POSITIVE,
     )
     pub_date = models.DateTimeField(
         'Дата публикации',
@@ -134,7 +102,7 @@ class Review(models.Model):
     class Meta:
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
-        ordering = ('pub_date',)
+        ordering = ('-pub_date',)
 
     def __str__(self):
-        return f'{self.user} написал: {self.author} {self.text}'
+        return f'{self.author} написал: {self.user} {self.text}'

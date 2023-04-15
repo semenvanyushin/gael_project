@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
+from games.models import Game
 from posts.models import PostSale, Review
 from posts.forms import PostSaleForm, ReviewForm
 
@@ -24,6 +25,8 @@ def post_create(request):
         request.POST or None,
         files=request.FILES or None
     )
+    form.fields['game'].queryset = Game.objects.all().filter(
+        owner__user=request.user)
     if form.is_valid():
         create_post = form.save(commit=False)
         create_post.author = request.user
