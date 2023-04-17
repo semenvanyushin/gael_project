@@ -4,7 +4,7 @@ from django import forms
 from posts.models import PostSale
 from posts.forms import PostSaleForm
 from tests.utils import get_field_from_context
-from tests.test_create import checklist_field
+from tests.utils import checklist_field
 
 
 class TestPostSaleView:
@@ -61,7 +61,7 @@ class TestPostSaleView:
         response = user_client.post(link, data={'price': price, 'game': post_sale.game_id, 'type_payment': type_payment})
 
         assert response.status_code in (301, 302), (
-            f'Проверьте, что со страницы `{link}` после создания поста перенаправляете на главную страницу'
+            f'Проверьте, что со страницы `{link}` после создания поста перенаправляете на страницу пользователя'
         )
         post = PostSale.objects.filter(author=post_sale.author, price=price, game=post_sale.game).first()
         assert post is not None, (

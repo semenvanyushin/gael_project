@@ -1,5 +1,6 @@
 from django import forms
 
+from games.models import Game
 from posts.models import PostSale, Review
 
 
@@ -15,7 +16,10 @@ class PostSaleForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
         super(PostSaleForm, self).__init__(*args, **kwargs)
+        self.fields['game'] = forms.ModelChoiceField(
+            queryset=Game.objects.filter(owner__user=user))
         self.fields['game'].empty_label = " Выбери игру "
 
 

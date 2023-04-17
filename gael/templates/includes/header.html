@@ -7,15 +7,15 @@
       <ul class="nav nav-tabs">
         {% with request.resolver_match.view_name as view_name %}
         <li class="nav-item">
+          <a class="nav-link {% if view_name == 'posts:index' %}active{% endif %}" href="{% url 'posts:index' %}">Маркет</a>
+        </li>
+        {% if user.is_authenticated %}
+        <li class="nav-item">
           <a class="nav-link {% if view_name == '' %}active{% endif %}" href="">Чат</a>
         </li>
         <li class="nav-item">
           <a class="nav-link {% if view_name == '' %}active{% endif %}" href="">Составы</a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link {% if view_name == 'posts:index' %}active{% endif %}" href="{% url 'posts:index' %}">Маркет</a>
-        </li>
-        {% if user.is_authenticated %}
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle {% if view_name == 'posts:profile' %}active{% endif %}" href="{% url 'posts:profile' user.username %}" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
               {{ user.username }}
@@ -24,7 +24,8 @@
               <li><a class="dropdown-item" href="{% url 'posts:profile' user.username %}">Моя страница</a></li>
               <li><a class="dropdown-item" href="#">Сообщения</a></li>
               <li><a class="dropdown-item" href="{% url 'users:password_change' %}">Изменить пароль</a></li>
-              <li><a class="dropdown-item" href="{% url 'users:logout' %}"><span style="color:red">Выйти</span></a></li>
+              <!-- Кнопка-триггер модального окна -->
+              <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#exampleModal"><span style="color:red">Выйти</span></a></li>
             </ul>
           </li> 
         {% else %}
@@ -40,3 +41,23 @@
     </div>
   </nav>
   <hr>
+  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Выход из учетной записи</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+        </div>
+        <div class="modal-body">
+          Вы уверены, что хотите выйти из аккаунта?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+          <form method="post" action="{% url 'users:logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-danger">Выйти</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>

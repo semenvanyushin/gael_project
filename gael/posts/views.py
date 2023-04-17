@@ -1,131 +1,130 @@
 from django.contrib.auth import get_user_model
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import get_object_or_404
+from django.views.generic import CreateView, DeleteView, ListView, UpdateView
+from django.urls import reverse_lazy
 
-from games.models import Game
 from posts.models import PostSale, Review
 from posts.forms import PostSaleForm, ReviewForm
 
 User = get_user_model()
 
 
-@login_required
-def index(request):
-    posts = PostSale.objects.all()
-    context = {
-        'posts': posts,
-    }
-    return render(request, 'posts/index.html', context)
+class MarketPage(ListView):
+    '''Выдает список всех постов.'''
+    model = PostSale
+    template_name = 'posts/index.html'
+    context_object_name = 'posts'
+    queryset = PostSale.objects.select_related('author', 'game')
 
 
-@login_required
-def post_create(request):
-    form = PostSaleForm(
-        request.POST or None,
-        files=request.FILES or None
-    )
-    form.fields['game'].queryset = Game.objects.all().filter(
-        owner__user=request.user)
-    if form.is_valid():
-        create_post = form.save(commit=False)
-        create_post.author = request.user
-        create_post.save()
+class PostSaleCreate(LoginRequiredMixin, CreateView):
+    '''Создает новый пост.'''
+    form_class = PostSaleForm
+    template_name = 'posts/create_post.html'
 
-        return redirect(
-            reverse('posts:profile',
-                    kwargs={'username': create_post.author.username}))
+    def get_form_kwargs(self):
+        kwargs = super(PostSaleCreate, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
 
-    context = {
-        'form': form
-    }
-
-    return render(request, 'posts/create_post.html', context)
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super(PostSaleCreate, self).form_valid(form)
 
 
-@login_required
-def post_edit(request, post_id):
-    select_post = get_object_or_404(PostSale, id=post_id)
-    if request.user != select_post.author:
-        return redirect(reverse('posts:index'))
-    form = PostSaleForm(
-        request.POST or None,
-        files=request.FILES or None,
-        instance=select_post
-    )
-    if form.is_valid():
-        form.save()
-        return redirect(reverse('posts:index'))
+class PostSaleUpdate(LoginRequiredMixin, UpdateView):
+    '''Изменяет существующий пост.'''
+    model = PostSale
+    form_class = PostSaleForm
+    template_name = 'posts/create_post.html'
+    pk_url_kwarg = 'post_id'
 
-    context = {
-        'form': form,
-        'is_edit': True,
-    }
-
-    return render(request, 'posts/create_post.html', context)
+    def get_form_kwargs(self):
+        kwargs = super(PostSaleUpdate, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
 
 
-@login_required
-def post_delete(request, post_id):
-    select_post = get_object_or_404(PostSale, id=post_id)
-    if request.user != select_post.author:
-        return redirect(reverse('posts:index'))
-    select_post.delete()
-    return redirect(reverse(
-        'posts:profile', kwargs={'username': request.user.username}))
+class PostSaleDelete(LoginRequiredMixin, DeleteView):
+    '''Удаляет выбранный пост.'''
+    model = PostSale
+    context_object_name = 'post'
+    pk_url_kwarg = 'post_id'
+    template_name = 'posts/post_confirm_delete.html'
+
+    def get_success_url(self):
+        return reverse_lazy(
+            'posts:profile', kwargs={'username': self.kwargs['username']})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['author'] = self.request.user
+        return context
 
 
-@login_required
-def profile(request, username):
-    author = get_object_or_404(User, username=username)
-    user_posts = PostSale.objects.all().filter(
-        author__username=username
-    )
+class ProfilePage(LoginRequiredMixin, ListView):
+    '''Выдает список постов пользователя.'''
+    model = PostSale
+    template_name = 'posts/profile.html'
+    context_object_name = 'user_posts'
 
-    context = {
-        'author': author,
-        'user_posts': user_posts,
-    }
+    def get_queryset(self):
+        return PostSale.objects.select_related('author', 'game')
 
-    return render(request, 'posts/profile.html', context)
-
-
-@login_required
-def review(request, username):
-    author = get_object_or_404(User, username=username)
-    reviews = Review.objects.all().filter(user__username=username)
-    context = {
-        'reviews': reviews,
-        'author': author,
-    }
-    return render(request, 'posts/review.html', context)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['author'] = get_object_or_404(
+            User, username=self.kwargs['username'])
+        context['user_posts'] = PostSale.objects.filter(
+            author__username=self.kwargs['username'])
+        return context
 
 
-@login_required
-def review_create(request, username):
-    form = ReviewForm(
-        request.POST or None,
-        files=request.FILES or None
-    )
-    if form.is_valid():
-        create_post = form.save(commit=False)
-        create_post.author = request.user
-        create_post.user = get_object_or_404(User, username=username)
-        create_post.save()
+class ReviewPage(LoginRequiredMixin, ListView):
+    '''Выдает список отзывов на пользователя.'''
+    model = Review
+    template_name = 'posts/review.html'
+    context_object_name = 'reviews'
 
-        return redirect(reverse(
-            'posts:review', kwargs={'username': create_post.user.username}))
-
-    context = {
-        'form': form
-    }
-
-    return render(request, 'posts/review_create.html', context)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['author'] = get_object_or_404(
+            User, username=self.kwargs['username'])
+        context['reviews'] = Review.objects.filter(
+            user__username=self.kwargs['username'])
+        return context
 
 
-@login_required
-def review_delete(request, username, review_id):
-    review = get_object_or_404(Review, id=review_id)
-    if review.user == request.user:
-        review.delete()
-    return redirect('posts:review', username)
+class ReviewCreate(LoginRequiredMixin, CreateView):
+    '''Создает новый отзыв.'''
+    form_class = ReviewForm
+    template_name = 'posts/review_create.html'
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        form.instance.user = get_object_or_404(
+            User, username=self.kwargs['username'])
+        return super(ReviewCreate, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy(
+            'posts:review', kwargs={'username': self.kwargs['username']})
+
+
+class ReviewDelete(LoginRequiredMixin, DeleteView):
+    '''Удаляет выбранный отзыв'''
+    model = Review
+    context_object_name = 'review'
+    pk_url_kwarg = 'review_id'
+    template_name = 'posts/review_confirm_delete.html'
+
+    def get_success_url(self):
+        return reverse_lazy(
+            'posts:review', kwargs={'username': self.kwargs['username']})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['author'] = get_object_or_404(
+            User, username=self.kwargs['username'])
+        return context

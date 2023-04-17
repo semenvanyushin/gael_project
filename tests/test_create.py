@@ -2,18 +2,7 @@ import pytest
 from django import forms
 
 from posts.models import PostSale, Review
-
-
-def checklist_field(response, field_name, link, type_field):
-    assert f'{field_name}' in response.context['form'].fields, (
-        f'Проверьте, что в форме `form` на странице `{link}` есть поле `{field_name}`'
-    )
-    assert type(response.context['form'].fields[f'{field_name}']) == type_field, (
-        f'Проверьте, что в форме `form` на странице `{link}` поле `{field_name}` типа `{type_field}`'
-    )
-    assert response.context['form'].fields[f'{field_name}'].required, (
-        f'Проверьте, что в форме `form` на странице `{link}` поле `{field_name}` обязательно'
-    )
+from tests.utils import checklist_field
 
 
 class TestPostSaleCreateView:

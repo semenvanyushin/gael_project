@@ -9,6 +9,8 @@
     <small>Цена: <span style="color:blue">{{ post.price }} руб.</span></small></li><br>
     <small>Вариант оплаты: <span style="color:blue">{{ post.type_payment }}</span></small><br>
     <br>
+    {% if user.is_authenticated %}
     {% include 'posts/includes/post_buttons.html' %}
+    {% endif %}
   </div>
 </div>

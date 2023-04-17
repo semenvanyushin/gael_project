@@ -27,6 +27,7 @@ urlpatterns = [
     path('', include('posts.urls', namespace='posts')),
     path('auth/', include('users.urls', namespace='users')),
     path('auth/', include('django.contrib.auth.urls')),
+    path('__debug__/', include('debug_toolbar.urls')),
 ]
 
 if settings.DEBUG:
