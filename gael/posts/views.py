@@ -1,9 +1,11 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 from django.urls import reverse_lazy
 
+from games.models import Owner
 from posts.models import PostSale, Review
 from posts.forms import PostSaleForm, ReviewForm
 
@@ -15,7 +17,10 @@ class MarketPage(ListView):
     model = PostSale
     template_name = 'posts/index.html'
     context_object_name = 'posts'
-    queryset = PostSale.objects.select_related('author', 'game')
+    queryset = PostSale.objects.select_related(
+        'author', 'game').prefetch_related(Prefetch(
+            'game__owner', queryset=Owner.objects.select_related(
+                'account', 'user').prefetch_related('account__organizer')))
 
 
 class PostSaleCreate(LoginRequiredMixin, CreateView):
@@ -70,14 +75,17 @@ class ProfilePage(LoginRequiredMixin, ListView):
     context_object_name = 'user_posts'
 
     def get_queryset(self):
-        return PostSale.objects.select_related('author', 'game')
+        return PostSale.objects.filter(
+            author__username=self.kwargs['username']).select_related(
+                'author', 'game').prefetch_related(Prefetch(
+                    'game__owner', queryset=Owner.objects.select_related(
+                        'account', 'user').prefetch_related(
+                            'account__organizer')))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['author'] = get_object_or_404(
             User, username=self.kwargs['username'])
-        context['user_posts'] = PostSale.objects.filter(
-            author__username=self.kwargs['username'])
         return context
 
 
@@ -87,12 +95,15 @@ class ReviewPage(LoginRequiredMixin, ListView):
     template_name = 'posts/review.html'
     context_object_name = 'reviews'
 
+    def get_queryset(self):
+        return Review.objects.filter(
+            user__username=self.kwargs['username']).select_related(
+                'author', 'user')
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['author'] = get_object_or_404(
             User, username=self.kwargs['username'])
-        context['reviews'] = Review.objects.filter(
-            user__username=self.kwargs['username'])
         return context
 
 

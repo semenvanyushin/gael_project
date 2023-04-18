@@ -39,7 +39,8 @@ class Account(models.Model):
                 fields=['organizer', 'login'], name='unique_login')]
 
     def __str__(self):
-        return f'{self.login} ({self.organizer.username})'
+        return (f'Аккаунт: {self.login}, Регион: {self.store_region} '
+                f'Организатор:{self.organizer.username}')
 
 
 class Owner(models.Model):
@@ -74,7 +75,8 @@ class Owner(models.Model):
         verbose_name_plural = 'Владельцы'
 
     def __str__(self):
-        return f'{self.user.username}'
+        return (f'Владелец: {self.user.username}, Аккаунт: {self.account} '
+                f'Платформа: {self.platform}, Тип: {self.type_activation}')
 
 
 class Game(models.Model):
@@ -119,4 +121,4 @@ class Game(models.Model):
         verbose_name_plural = 'Игры'
 
     def __str__(self):
-        return f'{self.name}, {self.rating}'
+        return f'{self.name}'

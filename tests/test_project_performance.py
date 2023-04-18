@@ -109,7 +109,7 @@ class TestReview:
 
     def test_review_admin(self):
         model = Review
-        review_admin_fields = ('id', 'user', 'author', 'text', 'score', 'pub_date')
+        review_admin_fields = ('id', 'get_user_username', 'get_author_username', 'text', 'score', 'pub_date')
         review_admin_search_fields = ('user', 'author', 'score')
         review_admin_list_filter = ('user', 'author', 'pub_date')
         admin_test(model, review_admin_fields, review_admin_search_fields, review_admin_list_filter)

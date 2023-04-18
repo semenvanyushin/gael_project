@@ -30,8 +30,8 @@ class PostSale(admin.ModelAdmin):
 class Review(admin.ModelAdmin):
     list_display = (
         'id',
-        'user',
-        'author',
+        'get_author_username',
+        'get_user_username',
         'text',
         'score',
         'pub_date'
@@ -39,6 +39,14 @@ class Review(admin.ModelAdmin):
     search_fields = ('user', 'author', 'score')
     list_filter = ('user', 'author', 'pub_date')
     empty_value_display = '-пусто-'
+
+    @admin.display(description='Автор')
+    def get_author_username(self, obj):
+        return obj.author.username
+
+    @admin.display(description='Пользователь')
+    def get_user_username(self, obj):
+        return obj.user.username
 
 
 @admin.register(FavoritePost)
@@ -56,8 +64,10 @@ class FavoritePost(admin.ModelAdmin):
     @admin.display(description='Пост о продаже')
     def get_post_sale(self, obj):
         return '\n '.join([
-            f'{item["author"]} - {item["game"]} {item["price"]} руб.'
-            for item in obj.post_sale.values('author', 'game', 'price')
+            f'Автор: {item["author__username"]}, Игра: {item["game__name"]}, '
+            f'Цена: {item["price"]} руб.'
+            for item in obj.post_sale.values(
+                'author__username', 'game__name', 'price')
         ])
 
     @admin.display(description='Пользователь')
