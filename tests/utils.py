@@ -189,3 +189,60 @@ def paginator_not_in_view_context(client, data, url):
         'Проверьте, что переменная `paginator` объекта `page_obj`'
         f' на странице `{url}` типа `Paginator`'
     )
+
+
+def get_url_try(user, user_client, url):
+    try:
+        user_client.get(url)
+    except Exception as e:
+        assert False, (
+            f'Страница `{url}` работает неправильно. Ошибка: `{e}`'
+        )
+
+
+def check_create_post(user_client, response, url,
+                      redirect_url, created_object):
+    assert response.status_code in (301, 302), (
+        f'Проверьте, что со страницы {url} после создания поста, '
+        f'перенаправляете на страницу `{redirect_url}`'
+    )
+
+    assert created_object is not None, (
+        'Проверьте, что вы сохранили новый пост '
+        f'при отправке формы на странице `{url}`'
+    )
+    assert response.url == redirect_url, (
+        'Проверьте, что перенаправляете на страницу отзывов '
+        f'на автора `{redirect_url}`'
+    )
+
+    response = user_client.post(url)
+    assert response.status_code == 200, (
+        f'Проверьте, что на странице {url} выводите ошибки '
+        'при неправильной заполненной формы `form`'
+    )
+
+
+def check_create_get(user_client, url, fields_cnt, fields):
+    try:
+        response = user_client.get(url)
+    except Exception as e:
+        assert False, (
+            f"Страница '{url}' работает неправильно. Ошибка: `{e}`"
+        )
+    if response.status_code in (301, 302):
+        response = user_client.get(url)
+    assert response.status_code != 404, (
+        f"Страница `{url}` не найдена, проверьте этот адрес в *urls.py*"
+    )
+    assert 'form' in response.context, (
+        'Проверьте, что передали форму `form` '
+        f'в контекст страницы `{url}`'
+    )
+    assert len(response.context['form'].fields) == fields_cnt, (
+        'Проверьте, что в форме `form` '
+        f'на страницу `{url}` {fields_cnt} поля'
+    )
+
+    for item in fields:
+        checklist_field(response, item, url, fields[item])

@@ -2,84 +2,39 @@ import pytest
 from django import forms
 
 from posts.models import PostSale, Review
-from tests.utils import checklist_field
+from tests.utils import (check_create_post, check_create_get, get_url_try)
 
 
 class TestPostSaleCreateView:
 
     @pytest.mark.django_db(transaction=True)
     def test_create_view_get(self, user_client):
-        link = '/create/'
-        try:
-            response = user_client.get('/create/')
-        except Exception as e:
-            assert False, (
-                f"Страница `/create/` работает неправильно. Ошибка: `{e}`"
-            )
-        if response.status_code in (301, 302):
-            response = user_client.get('/create/')
-        assert response.status_code != 404, (
-            'Страница `/create/` не найдена, проверьте этот адрес в *urls.py*'
-        )
-        assert 'form' in response.context, (
-            'Проверьте, что передали форму `form` '
-            'в контекст страницы `/create/`'
-        )
+        url = '/create/'
         fields_cnt = 3
-        assert len(response.context['form'].fields) == fields_cnt, (
-            'Проверьте, что в форме `form` '
-            f'на страницу `/create/` {fields_cnt} поля'
-        )
+        fields = {
+            'game': forms.models.ModelChoiceField,
+            'price': forms.fields.IntegerField,
+            'type_payment': forms.fields.CharField
+        }
 
-        field_name = 'game'
-        type_field = forms.models.ModelChoiceField
-        checklist_field(response, field_name, link, type_field)
-
-        field_name = 'price'
-        type_field = forms.fields.IntegerField
-        checklist_field(response, field_name, link, type_field)
-
-        field_name = 'type_payment'
-        type_field = forms.fields.CharField
-        checklist_field(response, field_name, link, type_field)
+        check_create_get(user_client, url, fields_cnt, fields)
 
     @pytest.mark.django_db(transaction=True)
     def test_create_view_post(self, user_client, user, game):
         price = 1000
         type_payment = 'Вариант оплаты'
-        try:
-            response = user_client.get('/create')
-        except Exception as e:
-            assert False, (
-                f"Страница `/create` работает неправильно. Ошибка: `{e}`"
-            )
-        url = '/create/' if response.status_code in (301, 302) else '/create'
-
+        url = '/create/'
+        redirect_url = f'/profile/{user.username}/'
         response = user_client.post(url, data={
             'price': price, 'game': game.id, 'type_payment': type_payment
         })
-
-        assert response.status_code in (301, 302), (
-            'Проверьте, что со страницы `/create/` после создания поста, '
-            'перенаправляете на страницу профиля автора '
-            f'`/profile/{user.username}`'
-        )
-        post = PostSale.objects.filter(
+        created_object = PostSale.objects.filter(
             author=user, price=price, game=game, type_payment=type_payment
         ).first()
-        assert post is not None, (
-            'Проверьте, что вы сохранили новый пост '
-            'при отправки формы на странице `/create/`'
-        )
-        assert response.url == f'/profile/{user.username}/', (
-            'перенаправляете на страницу профиля автора '
-            f'`/profile/{user.username}`'
-        )
 
-        response = user_client.post(url)
-        assert response.status_code == 200, (
-            'Проверьте, что на странице `/create/` выводите ошибки '
-            'при неправильной заполненной формы `form`'
+        get_url_try(user, user_client, url)
+        check_create_post(
+            user_client, response, url, redirect_url, created_object
         )
 
 
@@ -87,69 +42,27 @@ class TestReviewCreateView:
 
     @pytest.mark.django_db(transaction=True)
     def test_create_view_get(self, user_client, user):
-        link = f'/profile/{user.username}/reviews/create/'
-        try:
-            response = user_client.get(link)
-        except Exception as e:
-            assert False, (
-                f"Страница '{link}' работает неправильно. Ошибка: `{e}`"
-            )
-        if response.status_code in (301, 302):
-            response = user_client.get(link)
-        assert response.status_code != 404, (
-            f"Страница `{link}` не найдена, проверьте этот адрес в *urls.py*"
-        )
-        assert 'form' in response.context, (
-            'Проверьте, что передали форму `form` '
-            f'в контекст страницы `{link}`'
-        )
+        url = f'/profile/{user.username}/reviews/create/'
         fields_cnt = 2
-        assert len(response.context['form'].fields) == fields_cnt, (
-            'Проверьте, что в форме `form` '
-            f'на страницу `{link}` {fields_cnt} поля'
-        )
+        fields = {
+            'text': forms.fields.CharField,
+            'score': forms.fields.TypedChoiceField,
+        }
 
-        field_name = 'text'
-        type_field = forms.fields.CharField
-        checklist_field(response, field_name, link, type_field)
-
-        field_name = 'score'
-        type_field = forms.fields.TypedChoiceField
-        checklist_field(response, field_name, link, type_field)
+        check_create_get(user_client, url, fields_cnt, fields)
 
     @pytest.mark.django_db(transaction=True)
     def test_create_view_post(self, user_client, user, user_two):
         text = 'Текст отзыва'
         score = 'PV'
         url = f'/profile/{user_two.username}/reviews/create/'
-        try:
-            response = user_client.get(url)
-        except Exception as e:
-            assert False, (
-                f'Страница `{url}` работает неправильно. Ошибка: `{e}`'
-            )
-
+        redirect_url = f'/profile/{user_two.username}/reviews/'
         response = user_client.post(url, data={'text': text, 'score': score})
-
-        assert response.status_code in (301, 302), (
-            f'Проверьте, что со страницы {url} после создания поста, '
-            'перенаправляете на страницу профиля автора '
-            f'`profile/{user_two.username}/reviews/`'
-        )
-        review = Review.objects.filter(
+        created_object = Review.objects.filter(
             author=user, text=text, score=score
         ).first()
-        assert review is not None, (
-            'Проверьте, что вы сохранили новый пост '
-            f'при отправке формы на странице `{url}`'
-        )
-        assert response.url == f'/profile/{user_two.username}/reviews/', (
-            'перенаправляете на страницу отзывов на автора '
-            f'`profile/{user_two.username}/reviews/`'
-        )
 
-        response = user_client.post(url)
-        assert response.status_code == 200, (
-            f'Проверьте, что на странице {url} выводите ошибки '
-            'при неправильной заполненной формы `form`'
+        get_url_try(user, user_client, url)
+        check_create_post(
+            user_client, response, url, redirect_url, created_object
         )
