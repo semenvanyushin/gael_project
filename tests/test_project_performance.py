@@ -3,7 +3,9 @@ import tempfile
 import pytest
 from django.contrib.auth import get_user_model
 
-from tests.utils import (admin_test, char_field, created_date_field, field_with_foregin_key, float_field, integer_field, image_field, text_field)
+from tests.utils import (admin_test, char_field, created_date_field,
+                         field_with_foregin_key, float_field, integer_field,
+                         image_field, text_field)
 
 
 try:
@@ -62,16 +64,23 @@ class TestPostSale:
         price = 1000
         type_payment = 'Вариант оплаты'
         assert PostSale.objects.count() == 0
-        post_sale = PostSale.objects.create(price=price, author=user, game=game, type_payment=type_payment)
+        post_sale = PostSale.objects.create(
+            price=price, author=user, game=game, type_payment=type_payment
+        )
         assert PostSale.objects.count() == 1
-        assert PostSale.objects.get(price=price, author=user, game=game, type_payment=type_payment).pk == post_sale.pk
+        assert PostSale.objects.get(
+            price=price, author=user, game=game, type_payment=type_payment
+        ).pk == post_sale.pk
 
     def test_post_sale_admin(self):
         model = PostSale
-        post_sale_admin_fields = ('get_username', 'game', 'price', 'type_payment', 'pub_date')
+        post_sale_admin_fields = (
+            'get_username', 'game', 'price', 'type_payment', 'pub_date'
+        )
         post_sale_admin_search_fields = ('get_game_name', 'pub_date')
         post_sale_admin_list_filter = ('game', 'pub_date')
-        admin_test(model, post_sale_admin_fields, post_sale_admin_search_fields, post_sale_admin_list_filter)
+        admin_test(model, post_sale_admin_fields,
+                   post_sale_admin_search_fields, post_sale_admin_list_filter)
 
 
 class TestReview:
@@ -103,16 +112,24 @@ class TestReview:
         text = 'Тестовый текст'
         score = 'PV'
         assert Review.objects.count() == 0
-        review = Review.objects.create(user=user_two, author=user, text=text, score=score)
+        review = Review.objects.create(
+            user=user_two, author=user, text=text, score=score
+        )
         assert Review.objects.count() == 1
-        assert Review.objects.get(user=user_two.id, author=user.id, text=text, score=score).pk == review.pk
+        assert Review.objects.get(
+            user=user_two.id, author=user.id, text=text, score=score
+        ).pk == review.pk
 
     def test_review_admin(self):
         model = Review
-        review_admin_fields = ('id', 'get_user_username', 'get_author_username', 'text', 'score', 'pub_date')
+        review_admin_fields = (
+            'id', 'get_user_username', 'get_author_username',
+            'text', 'score', 'pub_date'
+        )
         review_admin_search_fields = ('user', 'author', 'score')
         review_admin_list_filter = ('user', 'author', 'pub_date')
-        admin_test(model, review_admin_fields, review_admin_search_fields, review_admin_list_filter)
+        admin_test(model, review_admin_fields,
+                   review_admin_search_fields, review_admin_list_filter)
 
 
 class TestFavoritePost:
@@ -137,14 +154,19 @@ class TestFavoritePost:
         favorite_post.post_sale.add(post_sale)
         favorite_post.save()
         assert FavoritePost.objects.count() == 1
-        assert FavoritePost.objects.get(user=user, post_sale=post_sale).pk == favorite_post.pk
+        assert FavoritePost.objects.get(
+            user=user, post_sale=post_sale).pk == favorite_post.pk
 
     def test_favorite_post_admin(self):
         model = FavoritePost
-        favorite_post_admin_fields = ('get_username', 'get_post_sale', 'creation_date')
+        favorite_post_admin_fields = (
+            'get_username', 'get_post_sale', 'creation_date'
+        )
         favorite_post_admin_search_fields = ('get_post_sale',)
         favorite_post_admin_list_filter = ('creation_date',)
-        admin_test(model, favorite_post_admin_fields, favorite_post_admin_search_fields, favorite_post_admin_list_filter)
+        admin_test(model, favorite_post_admin_fields,
+                   favorite_post_admin_search_fields,
+                   favorite_post_admin_list_filter)
 
 
 class TestGame:
@@ -186,16 +208,26 @@ class TestGame:
         release_date = '01.01.2019'
         assert Game.objects.count() == 0
         logo = tempfile.NamedTemporaryFile(suffix=".jpg").name
-        game = Game.objects.create(name=name, description=description, rating=rating, release_date=release_date, owner=owner, logo=logo)
+        game = Game.objects.create(
+            name=name, description=description, rating=rating,
+            release_date=release_date, owner=owner, logo=logo
+        )
         assert Game.objects.count() == 1
-        assert Game.objects.get(name=name, description=description, rating=rating, release_date=release_date, owner=owner, logo=logo).pk == game.pk
+        assert Game.objects.get(
+            name=name, description=description, rating=rating,
+            release_date=release_date, owner=owner, logo=logo
+        ).pk == game.pk
 
     def test_game_admin(self):
         model = Game
-        game_admin_fields = ('owner', 'name', 'description', 'rating', 'release_date', 'creation_date',)
+        game_admin_fields = (
+            'owner', 'name', 'description', 'rating',
+            'release_date', 'creation_date'
+        )
         game_admin_search_fields = ('owner', 'name', 'creation_date')
         game_admin_list_filter = ('owner', 'name', 'creation_date')
-        admin_test(model, game_admin_fields, game_admin_search_fields, game_admin_list_filter)
+        admin_test(model, game_admin_fields,
+                   game_admin_search_fields, game_admin_list_filter)
 
 
 class TestOwner:
@@ -228,16 +260,26 @@ class TestOwner:
         platform = 'Playstation 5'
         type_activation = 'П4'
         assert Owner.objects.count() == 0
-        owner = Owner.objects.create(platform=platform, type_activation=type_activation, account=account, user=user)
+        owner = Owner.objects.create(
+            platform=platform, type_activation=type_activation,
+            account=account, user=user
+        )
         assert Owner.objects.count() == 1
-        assert Owner.objects.get(platform=platform, type_activation=type_activation, account=account, user=user).pk == owner.pk
+        assert Owner.objects.get(
+            platform=platform, type_activation=type_activation,
+            account=account, user=user
+        ).pk == owner.pk
 
     def test_owner_admin(self):
         model = Owner
-        owner_admin_fields = ('get_username', 'account', 'platform', 'type_activation', 'creation_date')
+        owner_admin_fields = (
+            'get_username', 'account', 'platform',
+            'type_activation', 'creation_date'
+        )
         owner_admin_search_fields = ('get_username', 'account')
         owner_admin_list_filter = ('creation_date',)
-        admin_test(model, owner_admin_fields, owner_admin_search_fields, owner_admin_list_filter)
+        admin_test(model, owner_admin_fields,
+                   owner_admin_search_fields, owner_admin_list_filter)
 
 
 class TestAccount:
@@ -271,16 +313,25 @@ class TestAccount:
         store_region = 'Турция'
         assert Account.objects.count() == 0
         logo_region = tempfile.NamedTemporaryFile(suffix=".jpg").name
-        account = Account.objects.create(organizer=user, login=login, store_region=store_region, logo_region=logo_region)
+        account = Account.objects.create(
+            organizer=user, login=login,
+            store_region=store_region, logo_region=logo_region
+        )
         assert Account.objects.count() == 1
-        assert Account.objects.get(organizer=user, login=login, store_region=store_region, logo_region=logo_region).pk == account.pk
+        assert Account.objects.get(
+            organizer=user, login=login,
+            store_region=store_region, logo_region=logo_region
+        ).pk == account.pk
 
     def test_account_admin(self):
         model = Account
-        account_admin_fields = ('get_organizer_username', 'login', 'store_region', 'creation_date')
+        account_admin_fields = (
+            'get_organizer_username', 'login', 'store_region', 'creation_date'
+        )
         account_admin_search_fields = ('login',)
         account_admin_list_filter = ('store_region', 'creation_date')
-        admin_test(model, account_admin_fields, account_admin_search_fields, account_admin_list_filter)
+        admin_test(model, account_admin_fields,
+                   account_admin_search_fields, account_admin_list_filter)
 
 
 class TestCustomErrorPages:
@@ -291,13 +342,15 @@ class TestCustomErrorPages:
         code = 404
         response = client.get(url_invalid)
         assert response.status_code == code, (
-            f'Убедитесь, что для несуществующих адресов страниц, сервер возвращает код {code}'
+            'Убедитесь, что для несуществующих адресов страниц, '
+            f'сервер возвращает код {code}'
         )
         try:
             from gael.urls import handler404
         except ImportError:
             assert False, (
-                f'Убедитесь, что для страниц, возвращающих код {code}, настроен кастомный шаблон'
+                f'Убедитесь, что для страниц, возвращающих код {code}, '
+                'настроен кастомный шаблон'
             )
 
     @pytest.mark.django_db(transaction=True)
@@ -307,7 +360,8 @@ class TestCustomErrorPages:
             from gael.urls import handler500
         except ImportError:
             assert False, (
-                f'Убедитесь, что для страниц, возвращающих код {code}, настроен кастомный шаблон'
+                f'Убедитесь, что для страниц, возвращающих код {code}, '
+                'настроен кастомный шаблон'
             )
 
     @pytest.mark.django_db(transaction=True)
@@ -317,5 +371,6 @@ class TestCustomErrorPages:
             from gael.urls import handler403
         except ImportError:
             assert False, (
-                f'Убедитесь, что для страниц, возвращающих код {code}, настроен кастомный шаблон'
+                f'Убедитесь, что для страниц, возвращающих код {code}, '
+                'настроен кастомный шаблон'
             )

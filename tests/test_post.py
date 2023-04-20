@@ -15,7 +15,9 @@ class TestPostSaleView:
         try:
             response = user_client.get(link)
         except Exception as e:
-            assert False, f'''Страница `{link}` работает неправильно. Ошибка: `{e}`'''
+            assert False, (
+                f"Страница `{link}` работает неправильно. Ошибка: `{e}`"
+            )
         if response.status_code in (301, 302):
             response = user_client.get(link)
         assert response.status_code != 404, (
@@ -23,17 +25,22 @@ class TestPostSaleView:
         )
 
         post_context = get_field_from_context(response.context, PostSale)
-        postform_context = get_field_from_context(response.context, PostSaleForm)
+        postform_context = get_field_from_context(
+            response.context, PostSaleForm
+        )
         assert any([post_context, postform_context]) is not None, (
-            f'Проверьте, что передали статью в контекст страницы `{link}` типа `Post` или `PostForm`'
+            'Проверьте, что передали статью в контекст страницы '
+            f'`{link}` типа `Post` или `PostForm`'
         )
 
         assert 'form' in response.context, (
-            f'Проверьте, что передали форму `form` в контекст страницы `{link}`'
+            'Проверьте, что передали форму `form` '
+            f'в контекст страницы `{link}`'
         )
         fields_cnt = 3
         assert len(response.context['form'].fields) == fields_cnt, (
-            f'Проверьте, что в форме `form` на страницу `{link}` {fields_cnt} поля'
+            'Проверьте, что в форме `form` на страницу '
+            f'`{link}` {fields_cnt} поля'
         )
 
         field_name = 'game'
@@ -56,16 +63,25 @@ class TestPostSaleView:
         try:
             response = user_client.get(link)
         except Exception as e:
-            assert False, f'''Страница `{link}` работает неправильно. Ошибка: `{e}`'''
+            assert False, (
+                f"Страница `{link}` работает неправильно. Ошибка: `{e}`"
+            )
 
-        response = user_client.post(link, data={'price': price, 'game': post_sale.game_id, 'type_payment': type_payment})
+        response = user_client.post(link, data={
+            'price': price, 'game': post_sale.game_id,
+            'type_payment': type_payment
+        })
 
         assert response.status_code in (301, 302), (
-            f'Проверьте, что со страницы `{link}` после создания поста перенаправляете на страницу пользователя'
+            f'Проверьте, что со страницы `{link}` после создания поста '
+            'перенаправляете на страницу пользователя'
         )
-        post = PostSale.objects.filter(author=post_sale.author, price=price, game=post_sale.game).first()
+        post = PostSale.objects.filter(
+            author=post_sale.author, price=price, game=post_sale.game
+        ).first()
         assert post is not None, (
-            f'Проверьте, что вы изменили пост при отправке формы на странице `{link}`'
+            'Проверьте, что вы изменили пост '
+            f'при отправке формы на странице `{link}`'
         )
         assert response.url.startswith('/'), (
             'Проверьте, что перенаправляете на главную страницу `/`'

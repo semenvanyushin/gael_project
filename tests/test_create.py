@@ -13,14 +13,22 @@ class TestPostSaleCreateView:
         try:
             response = user_client.get('/create/')
         except Exception as e:
-            assert False, f'''Страница `/create/` работает неправильно. Ошибка: `{e}`'''
+            assert False, (
+                f"Страница `/create/` работает неправильно. Ошибка: `{e}`"
+            )
         if response.status_code in (301, 302):
             response = user_client.get('/create/')
-        assert response.status_code != 404, 'Страница `/create/` не найдена, проверьте этот адрес в *urls.py*'
-        assert 'form' in response.context, 'Проверьте, что передали форму `form` в контекст страницы `/create/`'
+        assert response.status_code != 404, (
+            'Страница `/create/` не найдена, проверьте этот адрес в *urls.py*'
+        )
+        assert 'form' in response.context, (
+            'Проверьте, что передали форму `form` '
+            'в контекст страницы `/create/`'
+        )
         fields_cnt = 3
         assert len(response.context['form'].fields) == fields_cnt, (
-            f'Проверьте, что в форме `form` на страницу `/create/` {fields_cnt} поля'
+            'Проверьте, что в форме `form` '
+            f'на страницу `/create/` {fields_cnt} поля'
         )
 
         field_name = 'game'
@@ -42,24 +50,36 @@ class TestPostSaleCreateView:
         try:
             response = user_client.get('/create')
         except Exception as e:
-            assert False, f'''Страница `/create` работает неправильно. Ошибка: `{e}`'''
+            assert False, (
+                f"Страница `/create` работает неправильно. Ошибка: `{e}`"
+            )
         url = '/create/' if response.status_code in (301, 302) else '/create'
 
-        response = user_client.post(url, data={'price': price, 'game': game.id, 'type_payment': type_payment})
+        response = user_client.post(url, data={
+            'price': price, 'game': game.id, 'type_payment': type_payment
+        })
 
         assert response.status_code in (301, 302), (
             'Проверьте, что со страницы `/create/` после создания поста, '
-            f'перенаправляете на страницу профиля автора `/profile/{user.username}`'
+            'перенаправляете на страницу профиля автора '
+            f'`/profile/{user.username}`'
         )
-        post = PostSale.objects.filter(author=user, price=price, game=game, type_payment=type_payment).first()
-        assert post is not None, 'Проверьте, что вы сохранили новый пост при отправки формы на странице `/create/`'
+        post = PostSale.objects.filter(
+            author=user, price=price, game=game, type_payment=type_payment
+        ).first()
+        assert post is not None, (
+            'Проверьте, что вы сохранили новый пост '
+            'при отправки формы на странице `/create/`'
+        )
         assert response.url == f'/profile/{user.username}/', (
-            f'перенаправляете на страницу профиля автора `/profile/{user.username}`'
+            'перенаправляете на страницу профиля автора '
+            f'`/profile/{user.username}`'
         )
 
         response = user_client.post(url)
         assert response.status_code == 200, (
-            'Проверьте, что на странице `/create/` выводите ошибки при неправильной заполненной формы `form`'
+            'Проверьте, что на странице `/create/` выводите ошибки '
+            'при неправильной заполненной формы `form`'
         )
 
 
@@ -71,14 +91,22 @@ class TestReviewCreateView:
         try:
             response = user_client.get(link)
         except Exception as e:
-            assert False, f'''Страница '{link}' работает неправильно. Ошибка: `{e}`'''
+            assert False, (
+                f"Страница '{link}' работает неправильно. Ошибка: `{e}`"
+            )
         if response.status_code in (301, 302):
             response = user_client.get(link)
-        assert response.status_code != 404, f'''Страница `{link}` не найдена, проверьте этот адрес в *urls.py*'''
-        assert 'form' in response.context, f'''Проверьте, что передали форму `form` в контекст страницы `{link}`'''
+        assert response.status_code != 404, (
+            f"Страница `{link}` не найдена, проверьте этот адрес в *urls.py*"
+        )
+        assert 'form' in response.context, (
+            'Проверьте, что передали форму `form` '
+            f'в контекст страницы `{link}`'
+        )
         fields_cnt = 2
         assert len(response.context['form'].fields) == fields_cnt, (
-            f'''Проверьте, что в форме `form` на страницу `{link}` {fields_cnt} поля'''
+            'Проверьте, что в форме `form` '
+            f'на страницу `{link}` {fields_cnt} поля'
         )
 
         field_name = 'text'
@@ -97,21 +125,31 @@ class TestReviewCreateView:
         try:
             response = user_client.get(url)
         except Exception as e:
-            assert False, f'''Страница `{url}` работает неправильно. Ошибка: `{e}`'''
+            assert False, (
+                f'Страница `{url}` работает неправильно. Ошибка: `{e}`'
+            )
 
         response = user_client.post(url, data={'text': text, 'score': score})
 
         assert response.status_code in (301, 302), (
-            f'''Проверьте, что со страницы {url} после создания поста, '''
-            f'перенаправляете на страницу профиля автора `profile/{user_two.username}/reviews/`'
+            f'Проверьте, что со страницы {url} после создания поста, '
+            'перенаправляете на страницу профиля автора '
+            f'`profile/{user_two.username}/reviews/`'
         )
-        review = Review.objects.filter(author=user, text=text, score=score).first()
-        assert review is not None, f'''Проверьте, что вы сохранили новый пост при отправке формы на странице `{url}`'''
+        review = Review.objects.filter(
+            author=user, text=text, score=score
+        ).first()
+        assert review is not None, (
+            'Проверьте, что вы сохранили новый пост '
+            f'при отправке формы на странице `{url}`'
+        )
         assert response.url == f'/profile/{user_two.username}/reviews/', (
-            f'перенаправляете на страницу отзывов на автора `profile/{user_two.username}/reviews/`'
+            'перенаправляете на страницу отзывов на автора '
+            f'`profile/{user_two.username}/reviews/`'
         )
 
         response = user_client.post(url)
         assert response.status_code == 200, (
-            f'''Проверьте, что на странице {url} выводите ошибки при неправильной заполненной формы `form`'''
+            f'Проверьте, что на странице {url} выводите ошибки '
+            'при неправильной заполненной формы `form`'
         )

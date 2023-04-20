@@ -12,8 +12,9 @@ if (
         or not os.path.isdir(MANAGE_PATH)
 ):
     assert False, (
-        f'В директории `{BASE_DIR}` не найдена папка c проектом `{PROJECT_DIR_NAME}`. '
-        f'Убедитесь, что у вас верная структура проекта.'
+        f'В директории `{BASE_DIR}` не найдена '
+        f'папка c проектом `{PROJECT_DIR_NAME}`. '
+        'Убедитесь, что у вас верная структура проекта.'
     )
 
 project_dir_content = os.listdir(MANAGE_PATH)

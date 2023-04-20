@@ -4,7 +4,7 @@ import pytest
 from mixer.backend.django import mixer as _mixer
 
 from games.models import Account, Game, Owner
-from posts.models import PostSale
+from posts.models import PostSale, Review
 
 
 @pytest.fixture()
@@ -60,3 +60,25 @@ def post_sale(user, game):
         price=500,
         type_payment='вариант оплаты',
     )
+
+
+@pytest.fixture
+def review(user, user_two):
+    return Review.objects.create(
+        user=user,
+        author=user_two,
+        score='PV',
+        text='текст отзыва',
+    )
+
+
+@pytest.fixture
+def few_posts_sale(mixer, user, game):
+    posts = mixer.cycle(20).blend(PostSale, author=user, game=game)
+    return posts[0]
+
+
+@pytest.fixture
+def few_review(mixer, user, user_two):
+    review = mixer.cycle(20).blend(Review, user=user, author=user_two)
+    return review[0]

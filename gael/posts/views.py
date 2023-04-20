@@ -8,11 +8,12 @@ from django.urls import reverse_lazy
 from games.models import Owner
 from posts.models import PostSale, Review
 from posts.forms import PostSaleForm, ReviewForm
+from posts.utils import DataMixin
 
 User = get_user_model()
 
 
-class MarketPage(ListView):
+class MarketPage(DataMixin, ListView):
     '''Выдает список всех постов.'''
     model = PostSale
     template_name = 'posts/index.html'
@@ -64,11 +65,12 @@ class PostSaleDelete(LoginRequiredMixin, DeleteView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['author'] = self.request.user
+        context['author'] = get_object_or_404(
+            User, username=self.kwargs['username'])
         return context
 
 
-class ProfilePage(LoginRequiredMixin, ListView):
+class ProfilePage(DataMixin, ListView):
     '''Выдает список постов пользователя.'''
     model = PostSale
     template_name = 'posts/profile.html'
@@ -89,7 +91,7 @@ class ProfilePage(LoginRequiredMixin, ListView):
         return context
 
 
-class ReviewPage(LoginRequiredMixin, ListView):
+class ReviewPage(DataMixin, ListView):
     '''Выдает список отзывов на пользователя.'''
     model = Review
     template_name = 'posts/review.html'
