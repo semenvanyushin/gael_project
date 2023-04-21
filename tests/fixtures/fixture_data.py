@@ -65,8 +65,8 @@ def post_sale(user, game):
 @pytest.fixture
 def review(user, user_two):
     return Review.objects.create(
-        user=user,
-        author=user_two,
+        user=user_two,
+        author=user,
         score='PV',
         text='текст отзыва',
     )
@@ -80,5 +80,5 @@ def few_posts_sale(mixer, user, game):
 
 @pytest.fixture
 def few_review(mixer, user, user_two):
-    review = mixer.cycle(20).blend(Review, user=user, author=user_two)
+    review = mixer.cycle(20).blend(Review, user=user_two, author=user)
     return review[0]

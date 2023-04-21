@@ -82,15 +82,15 @@ class Review(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='user',
-        verbose_name='Пользователь'
+        related_name='author_review',
+        verbose_name='Автор отзыва'
     )
     text = models.TextField('Текст отзыва')
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='author',
-        verbose_name='Автор отзыва'
+        related_name='user_review',
+        verbose_name='Объект отзыва'
     )
     score = models.CharField(
         'оценка',
@@ -109,5 +109,10 @@ class Review(models.Model):
         verbose_name_plural = 'Отзывы'
         ordering = ('-pub_date',)
 
+    def get_absolute_url(self):
+        return reverse(
+            'posts:review', kwargs={'username': self.user.username})
+
     def __str__(self):
-        return f'{self.author} написал: {self.user} {self.text}'
+        return (f'{self.author.username} написал '
+                f'про {self.user.username}: {self.text}')

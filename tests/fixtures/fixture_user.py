@@ -28,6 +28,12 @@ def user_client(user, client):
 
 
 @pytest.fixture
+def user_two_client(user_two, client):
+    client.force_login(user_two)
+    return client
+
+
+@pytest.fixture
 def another_user(mixer):
     from django.contrib.auth.models import User
     return mixer.blend(User, username='AnotherUser')

@@ -17,13 +17,13 @@ class TestPaginatorView:
         url_paginator_view(client=client, data=post_sale, url=self.url)
 
     def test_review_paginator_not_in_view_context(self, client, few_review):
-        url = f'/profile/{few_review.author.username}/reviews/'
+        url = f'/profile/{few_review.user.username}/reviews/'
         paginator_not_in_view_context(
             client=client, data=few_review, url=url
         )
 
     def test_review_paginator_view(self, client, review):
-        url = f'/profile/{review.author.username}/reviews/'
+        url = f'/profile/{review.user.username}/reviews/'
         url_paginator_view(client=client, data=review, url=url)
 
     def test_profile_paginator_not_in_view_context(

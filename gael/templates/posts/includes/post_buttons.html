@@ -1,16 +1,38 @@
 <div class="d-flex justify-content-center">
   {% if request.user != post.author %}
-    <a class="btn btn-sm btn-primary" href="{% url 'posts:profile' post.author.username %}" role="button">
+    <a class="btn btn-sm btn-primary mt-auto" href="{% url 'posts:profile' post.author.username %}" role="button">
       Купить
     </a>
   {% else %}
     <div>
-      <a class="btn btn-sm btn-primary" href="{% url 'posts:post_edit' post.id %}" role="button">
+      <a class="btn btn-sm btn-primary mt-auto" href="{% url 'posts:post_edit' post.id %}" role="button">
         Изменить
       </a>
-      <a class="btn btn-sm btn-danger" href="{% url 'posts:post_delete' post.id %}" role="button">
+      <!-- Кнопка-триггер модального окна -->
+      <a class="btn btn-sm btn-danger mt-auto" role="button" data-bs-toggle="modal" data-bs-target="#exampleModalDelete">
         Удалить
       </a>
     </div>
   {% endif %}
+  <!-- Модальное окно удаления поста -->
+  <div class="modal fade" id="exampleModalDelete" tabindex="-1" aria-labelledby="exampleModalDeleteLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalDeleteLabel">Удаление поста</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+        </div>
+        <div class="modal-body">
+          Вы уверены, что хотите удалить {{ post.game.name }}?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Отмена</button>
+          <form method="post" action="{% url 'posts:post_delete' post.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-danger">Удалить</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
