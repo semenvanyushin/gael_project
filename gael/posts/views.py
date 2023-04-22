@@ -1,12 +1,10 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Prefetch
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 from django.urls import reverse_lazy
 
-from games.models import Owner
 from posts.models import PostSale, Review
 from posts.forms import PostSaleForm, ReviewForm
 from posts.utils import DataMixin
@@ -19,10 +17,8 @@ class MarketPage(DataMixin, ListView):
     model = PostSale
     template_name = 'posts/index.html'
     context_object_name = 'posts'
-    queryset = PostSale.objects.select_related(
-        'author', 'game').prefetch_related(Prefetch(
-            'game__owner', queryset=Owner.objects.select_related(
-                'account', 'user').prefetch_related('account__organizer')))
+    queryset = PostSale.objects.select_related('author').prefetch_related(
+        'account__organizer', 'account__game', 'account__owners')
 
 
 class PostSaleCreate(LoginRequiredMixin, CreateView):
@@ -78,7 +74,7 @@ class PostSaleDelete(LoginRequiredMixin, DeleteView):
         return super(PostSaleDelete, self).form_valid(form)
 
 
-class ProfilePage(LoginRequiredMixin, DataMixin, ListView):
+class ProfilePage(DataMixin, ListView):
     '''Выдает список постов пользователя.'''
     model = PostSale
     template_name = 'posts/profile.html'
@@ -87,10 +83,8 @@ class ProfilePage(LoginRequiredMixin, DataMixin, ListView):
     def get_queryset(self):
         return PostSale.objects.filter(
             author__username=self.kwargs['username']).select_related(
-                'author', 'game').prefetch_related(Prefetch(
-                    'game__owner', queryset=Owner.objects.select_related(
-                        'account', 'user').prefetch_related(
-                            'account__organizer')))
+                'author').prefetch_related('account__organizer',
+                                           'account__game', 'account__owners')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -99,7 +93,7 @@ class ProfilePage(LoginRequiredMixin, DataMixin, ListView):
         return context
 
 
-class ReviewPage(LoginRequiredMixin, DataMixin, ListView):
+class ReviewPage(DataMixin, ListView):
     '''Выдает список отзывов на пользователя.'''
     model = Review
     template_name = 'posts/review.html'

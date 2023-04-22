@@ -1,10 +1,10 @@
 {% load thumbnail %}
 <div class="card m-1" style="width: 19rem;">
-  {% thumbnail post.game.logo "900x480" crop="center" upscale=True as im %}
+  {% thumbnail post.account.game.logo "900x480" crop="center" upscale=True as im %}
       <img class="card-img my-2" src="{{ im.url }}">
   {% endthumbnail %}
   <div class="card-body d-flex-sm p-1 flex-column bd-highlight">
-    <small>Игра: <span style="color:blue">{{ post.game.name }} {{ post.game.owner.type_activation }}</span> ({{ post.game.owner.account.organizer.username }})</small><br>
+    <small>Игра: <span style="color:blue">{{ post.account.game.name }}</span> ({{ post.account.organizer.username }})</small><br>
     <small>Владелец: <a href="{% url 'posts:profile' post.author.username %}"><span style="color:blue">{{ post.author.username }}</span></a></small><br>
     <small>Цена: <span style="color:blue">{{ post.price }} руб.</span></small></li><br>
     <small>Вариант оплаты: <span style="color:blue">{{ post.type_payment }}</span></small><br>

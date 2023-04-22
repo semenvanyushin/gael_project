@@ -4,7 +4,8 @@ import pytest
 from django.contrib.auth import get_user_model
 
 from tests.utils import (admin_test, char_field, created_date_field,
-                         field_with_foregin_key, float_field, integer_field,
+                         field_with_foregin_key,
+                         float_field, integer_field,
                          image_field, text_field)
 
 
@@ -51,8 +52,8 @@ class TestPostSale:
         related_model = get_user_model()
         field_with_foregin_key(model, model_fields, field_name, related_model)
 
-        field_name = 'game_id'
-        related_model = Game
+        field_name = 'account_id'
+        related_model = Account
         field_with_foregin_key(model, model_fields, field_name, related_model)
 
         field_name = 'type_payment'
@@ -60,25 +61,28 @@ class TestPostSale:
         char_field(model, model_fields, field_name, max_length)
 
     @pytest.mark.django_db(transaction=True)
-    def test_post_sale_create(self, user, game):
+    def test_post_sale_create(self, user, account):
         price = 1000
         type_payment = 'Вариант оплаты'
         assert PostSale.objects.count() == 0
         post_sale = PostSale.objects.create(
-            price=price, author=user, game=game, type_payment=type_payment
+            price=price, author=user,
+            account=account, type_payment=type_payment
         )
         assert PostSale.objects.count() == 1
         assert PostSale.objects.get(
-            price=price, author=user, game=game, type_payment=type_payment
+            price=price, author=user,
+            account=account, type_payment=type_payment
         ).pk == post_sale.pk
 
     def test_post_sale_admin(self):
         model = PostSale
         post_sale_admin_fields = (
-            'get_username', 'game', 'price', 'type_payment', 'pub_date'
+            'get_username', 'get_account_login',
+            'price', 'type_payment', 'pub_date'
         )
-        post_sale_admin_search_fields = ('get_game_name', 'pub_date')
-        post_sale_admin_list_filter = ('game', 'pub_date')
+        post_sale_admin_search_fields = ('get_account_login', 'pub_date')
+        post_sale_admin_list_filter = ('account', 'pub_date')
         admin_test(model, post_sale_admin_fields,
                    post_sale_admin_search_fields, post_sale_admin_list_filter)
 
@@ -190,10 +194,6 @@ class TestGame:
         upload_to = 'static/logo/%Y/%m/%d/'
         image_field(model, model_fields, field_name, upload_to)
 
-        field_name = 'owner_id'
-        related_model = Owner
-        field_with_foregin_key(model, model_fields, field_name, related_model)
-
         field_name = 'rating'
         float_field(model, model_fields, field_name)
 
@@ -210,22 +210,22 @@ class TestGame:
         logo = tempfile.NamedTemporaryFile(suffix=".jpg").name
         game = Game.objects.create(
             name=name, description=description, rating=rating,
-            release_date=release_date, owner=owner, logo=logo
+            release_date=release_date, logo=logo
         )
         assert Game.objects.count() == 1
         assert Game.objects.get(
             name=name, description=description, rating=rating,
-            release_date=release_date, owner=owner, logo=logo
+            release_date=release_date, logo=logo
         ).pk == game.pk
 
     def test_game_admin(self):
         model = Game
         game_admin_fields = (
-            'owner', 'name', 'description', 'rating',
+            'name', 'description', 'rating',
             'release_date', 'creation_date'
         )
-        game_admin_search_fields = ('owner', 'name', 'creation_date')
-        game_admin_list_filter = ('owner', 'name', 'creation_date')
+        game_admin_search_fields = ('name', 'creation_date')
+        game_admin_list_filter = ('name', 'creation_date')
         admin_test(model, game_admin_fields,
                    game_admin_search_fields, game_admin_list_filter)
 
@@ -244,10 +244,6 @@ class TestOwner:
         max_length = 10
         char_field(model, model_fields, field_name, max_length)
 
-        field_name = 'account_id'
-        related_model = Account
-        field_with_foregin_key(model, model_fields, field_name, related_model)
-
         field_name = 'user_id'
         related_model = get_user_model()
         field_with_foregin_key(model, model_fields, field_name, related_model)
@@ -256,27 +252,25 @@ class TestOwner:
         created_date_field(model, model_fields, field_name)
 
     @pytest.mark.django_db(transaction=True)
-    def test_owner_create(self, account, user):
+    def test_owner_create(self, user):
         platform = 'Playstation 5'
         type_activation = 'П4'
         assert Owner.objects.count() == 0
         owner = Owner.objects.create(
-            platform=platform, type_activation=type_activation,
-            account=account, user=user
+            platform=platform, type_activation=type_activation, user=user
         )
         assert Owner.objects.count() == 1
         assert Owner.objects.get(
-            platform=platform, type_activation=type_activation,
-            account=account, user=user
+            platform=platform, type_activation=type_activation, user=user
         ).pk == owner.pk
 
     def test_owner_admin(self):
         model = Owner
         owner_admin_fields = (
-            'get_username', 'account', 'platform',
+            'get_username', 'platform',
             'type_activation', 'creation_date'
         )
-        owner_admin_search_fields = ('get_username', 'account')
+        owner_admin_search_fields = ('get_username',)
         owner_admin_list_filter = ('creation_date',)
         admin_test(model, owner_admin_fields,
                    owner_admin_search_fields, owner_admin_list_filter)
@@ -304,29 +298,39 @@ class TestAccount:
         related_model = get_user_model()
         field_with_foregin_key(model, model_fields, field_name, related_model)
 
+        field_name = 'game_id'
+        related_model = Game
+        field_with_foregin_key(model, model_fields, field_name, related_model)
+
         field_name = 'creation_date'
         created_date_field(model, model_fields, field_name)
 
     @pytest.mark.django_db(transaction=True)
-    def test_account_create(self, user):
+    def test_account_create(self, user, game, owner):
         login = 'login@mail.ru'
         store_region = 'Турция'
         assert Account.objects.count() == 0
         logo_region = tempfile.NamedTemporaryFile(suffix=".jpg").name
         account = Account.objects.create(
             organizer=user, login=login,
-            store_region=store_region, logo_region=logo_region
+            store_region=store_region, logo_region=logo_region,
+            game=game
         )
+        account.save()
+        account.owners.add(owner)
+        account.save()
         assert Account.objects.count() == 1
         assert Account.objects.get(
             organizer=user, login=login,
-            store_region=store_region, logo_region=logo_region
+            store_region=store_region, logo_region=logo_region,
+            game=game, owners=owner
         ).pk == account.pk
 
     def test_account_admin(self):
         model = Account
         account_admin_fields = (
-            'get_organizer_username', 'login', 'store_region', 'creation_date'
+            'get_organizer_username', 'get_owners', 'get_game_name',
+            'login', 'store_region', 'creation_date'
         )
         account_admin_search_fields = ('login',)
         account_admin_list_filter = ('store_region', 'creation_date')

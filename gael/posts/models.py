@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
 
-from games.models import Game
+from games.models import Account
 
 User = get_user_model()
 
@@ -14,11 +14,11 @@ class PostSale(models.Model):
         related_name='posts',
         verbose_name='автор',
     )
-    game = models.ForeignKey(
-        Game,
+    account = models.ForeignKey(
+        Account,
         on_delete=models.CASCADE,
-        related_name='game',
-        verbose_name='игра',
+        related_name='account',
+        verbose_name='Аккаунт',
     )
     price = models.IntegerField('Цена')
     type_payment = models.CharField(
@@ -40,7 +40,8 @@ class PostSale(models.Model):
             'posts:profile', kwargs={'username': self.author.username})
 
     def __str__(self):
-        return f'{self.author.username}: {self.game} - {self.price}'
+        return (f'{self.author.username}: '
+                f'{self.account.game.name} - {self.price}')
 
 
 class FavoritePost(models.Model):

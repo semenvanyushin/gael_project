@@ -8,6 +8,8 @@ class Account(admin.ModelAdmin):
     list_display = (
         'id',
         'get_organizer_username',
+        'get_owners',
+        'get_game_name',
         'login',
         'store_region',
         'creation_date',
@@ -20,18 +22,30 @@ class Account(admin.ModelAdmin):
     def get_organizer_username(self, obj):
         return obj.organizer.username
 
+    @admin.display(description='Организатор')
+    def get_game_name(self, obj):
+        return obj.game.name
+
+    @admin.display(description='Владельцы')
+    def get_owners(self, obj):
+        return '\n '.join([
+            f'{item["type_activation"]}, '
+            f'{item["user__username"]}, {item["platform"]},'
+            for item in obj.owners.values('user__username', 'platform',
+                                          'type_activation')
+        ])
+
 
 @admin.register(Owner)
 class Owner(admin.ModelAdmin):
     list_display = (
         'id',
         'get_username',
-        'account',
         'platform',
         'type_activation',
         'creation_date',
     )
-    search_fields = ('get_username', 'account')
+    search_fields = ('get_username',)
     list_filter = ('creation_date',)
     empty_value_display = '-пусто-'
 
@@ -44,13 +58,12 @@ class Owner(admin.ModelAdmin):
 class Game(admin.ModelAdmin):
     list_display = (
         'id',
-        'owner',
         'name',
         'description',
         'rating',
         'release_date',
         'creation_date',
     )
-    search_fields = ('owner', 'name', 'creation_date')
-    list_filter = ('owner', 'name', 'creation_date')
+    search_fields = ('name', 'creation_date')
+    list_filter = ('name', 'creation_date')
     empty_value_display = '-пусто-'

@@ -12,7 +12,7 @@ class TestPostSaleCreateView:
         url = '/create/'
         fields_cnt = 3
         fields = {
-            'game': forms.models.ModelChoiceField,
+            'account': forms.models.ModelChoiceField,
             'price': forms.fields.IntegerField,
             'type_payment': forms.fields.CharField
         }
@@ -20,16 +20,17 @@ class TestPostSaleCreateView:
         check_create_get(user_client, url, fields_cnt, fields)
 
     @pytest.mark.django_db(transaction=True)
-    def test_create_view_post(self, user_client, user, game):
+    def test_create_view_post(self, user_client, user, account):
         price = 1000
         type_payment = 'Вариант оплаты'
         url = '/create/'
         redirect_url = f'/profile/{user.username}/'
         response = user_client.post(url, data={
-            'price': price, 'game': game.id, 'type_payment': type_payment
+            'price': price, 'account': account.id, 'type_payment': type_payment
         })
         created_object = PostSale.objects.filter(
-            author=user, price=price, game=game, type_payment=type_payment
+            author=user, price=price, account=account,
+            type_payment=type_payment
         ).first()
 
         get_url_try(user, user_client, url)

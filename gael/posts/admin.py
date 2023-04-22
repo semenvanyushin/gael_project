@@ -8,18 +8,18 @@ class PostSale(admin.ModelAdmin):
     list_display = (
         'id',
         'get_username',
-        'game',
+        'get_account_login',
         'price',
         'type_payment',
         'pub_date'
     )
-    search_fields = ('get_game_name', 'pub_date')
-    list_filter = ('game', 'pub_date')
+    search_fields = ('get_account_login', 'pub_date')
+    list_filter = ('account', 'pub_date')
     empty_value_display = '-пусто-'
 
-    @admin.display(description='Название игры')
-    def get_game_name(self, obj):
-        return obj.game.name
+    @admin.display(description='Аккаунт')
+    def get_account_login(self, obj):
+        return obj.account.game.name
 
     @admin.display(description='Автор')
     def get_username(self, obj):

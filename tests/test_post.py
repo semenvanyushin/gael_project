@@ -44,7 +44,7 @@ class TestPostSaleView:
             f'`{url}` {fields_cnt} поля'
         )
 
-        field_name = 'game'
+        field_name = 'account'
         type_field = forms.models.ModelChoiceField
         checklist_field(response, field_name, url, type_field)
 
@@ -69,7 +69,7 @@ class TestPostSaleView:
             )
 
         response = user_client.post(url, data={
-            'price': price, 'game': post_sale.game_id,
+            'price': price, 'account': post_sale.account_id,
             'type_payment': type_payment
         })
 
@@ -78,7 +78,7 @@ class TestPostSaleView:
             'перенаправляете на страницу пользователя'
         )
         post = PostSale.objects.filter(
-            author=post_sale.author, price=price, game=post_sale.game
+            author=post_sale.author, price=price, account=post_sale.account
         ).first()
         assert post is not None, (
             'Проверьте, что вы изменили пост '
@@ -89,10 +89,11 @@ class TestPostSaleView:
         )
 
     @pytest.mark.django_db(transaction=True)
-    def test_post_delete_view_author_post(self, user, user_client, game):
+    def test_post_delete_view_author_post(self, user, user_client, account):
         assert PostSale.objects.count() == 0
         post_for_delete = PostSale.objects.create(
-            author=user, game=game, price=800, type_payment='вариант оплаты'
+            author=user, account=account,
+            price=800, type_payment='вариант оплаты'
         )
         assert PostSale.objects.count() == 1, (
             'Проверьте модель `PostSale`, не удается создать пост.'
@@ -107,10 +108,11 @@ class TestPostSaleView:
 
     @pytest.mark.django_db(transaction=True)
     def test_post_delete_view_not_author_post(self, user,
-                                              user_two_client, game):
+                                              user_two_client, account):
         assert PostSale.objects.count() == 0
         post_for_delete = PostSale.objects.create(
-            author=user, game=game, price=800, type_payment='вариант оплаты'
+            author=user, account=account,
+            price=800, type_payment='вариант оплаты'
         )
         assert PostSale.objects.count() == 1, (
             'Проверьте модель `PostSale`, не удается создать пост.'

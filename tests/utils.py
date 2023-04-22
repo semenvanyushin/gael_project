@@ -6,6 +6,7 @@ from django.db.models import fields
 
 
 def get_field_from_context(context, field_type):
+    '''Возвращает поля формы.'''
     for field in context.keys():
         if field not in ('user', 'request') and isinstance(context[field],
                                                            field_type):
@@ -14,6 +15,7 @@ def get_field_from_context(context, field_type):
 
 
 def search_field(fields, attname):
+    '''Проверяет наличие поля в модели.'''
     for field in fields:
         if attname == field.attname:
             return field
@@ -29,6 +31,7 @@ def search_refind(execution, user_code):
 
 
 def admin_test(model, admin_fields, admin_search_fields, admin_list_filter):
+    '''Проверяет поля, поиск и фильтры в админской панели'''
     admin_site = site
 
     assert model in admin_site._registry, (
@@ -63,6 +66,7 @@ def admin_test(model, admin_fields, admin_search_fields, admin_list_filter):
 
 
 def created_date_field(model, model_fields, field_name):
+    '''Проверяет поле с датой и временем.'''
     created = search_field(model_fields, f'{field_name}')
     assert created is not None, (
         'Добавьте дату и время проведения события '
@@ -78,6 +82,7 @@ def created_date_field(model, model_fields, field_name):
 
 
 def field_with_foregin_key(model, model_fields, field_name, related_model):
+    '''Проверяет поле со связью один ко многим.'''
     field = search_field(model_fields, f'{field_name}')
     assert field is not None, (
         f'Добавьте свойство `{field_name}` в модель `{model}`'
@@ -93,6 +98,7 @@ def field_with_foregin_key(model, model_fields, field_name, related_model):
 
 
 def char_field(model, model_fields, field_name, max_length):
+    '''Проверяет поле текста с ограниением количества символов.'''
     field = search_field(model_fields, f'{field_name}')
     assert field is not None, (
         f'Добавьте свойство `{field_name}` в модель `{model}`'
@@ -107,6 +113,7 @@ def char_field(model, model_fields, field_name, max_length):
 
 
 def image_field(model, model_fields, field_name, upload_to):
+    '''Проверяет поле с изображением.'''
     field = search_field(model_fields, f'{field_name}')
     assert field is not None, (
         f'Добавьте свойство `{field_name}` в модель `{model}`'
@@ -121,6 +128,7 @@ def image_field(model, model_fields, field_name, upload_to):
 
 
 def text_field(model, model_fields, field_name):
+    '''Проверяет текстовое поле.'''
     field = search_field(model_fields, f'{field_name}')
     assert field is not None, (
         f'Добавьте свойство `{field_name}` в модель `{model}`'
@@ -131,6 +139,7 @@ def text_field(model, model_fields, field_name):
 
 
 def integer_field(model, model_fields, field_name):
+    '''Проверяет поле целым числом.'''
     field = search_field(model_fields, f'{field_name}')
     assert field is not None, (
         f'Добавьте название события `{field_name}` модели `{model}`'
@@ -142,6 +151,7 @@ def integer_field(model, model_fields, field_name):
 
 
 def float_field(model, model_fields, field_name):
+    '''Проверяет поле с дробным числом.'''
     field = search_field(model_fields, f'{field_name}')
     assert field is not None, (
         f'Добавьте свойство `{field_name}` модели `{model}`'
@@ -153,6 +163,7 @@ def float_field(model, model_fields, field_name):
 
 
 def checklist_field(response, field_name, link, type_field):
+    '''Проверяет поля в форме.'''
     assert f'{field_name}' in response.context['form'].fields, (
         'Проверьте, что в форме `form` на '
         f'странице `{link}` есть поле `{field_name}`'
@@ -170,6 +181,7 @@ def checklist_field(response, field_name, link, type_field):
 
 
 def url_paginator_view(client, data, url):
+    '''Проверяет наличие пагинации на странице.'''
     response = client.get(url)
     assert response.status_code != 404, (
         f'Страница `{url}` не найдена, проверьте этот адрес в *urls.py*'
@@ -184,6 +196,7 @@ def url_paginator_view(client, data, url):
 
 
 def paginator_not_in_view_context(client, data, url):
+    '''Проверяет соответствие переменной "paginator" типу "Paginator".'''
     response = client.get(url)
     assert isinstance(response.context['page_obj'].paginator, Paginator), (
         'Проверьте, что переменная `paginator` объекта `page_obj`'
@@ -192,6 +205,7 @@ def paginator_not_in_view_context(client, data, url):
 
 
 def get_url_try(user, user_client, url):
+    '''Проверяет доступность страницы на "get" запрос'''
     try:
         user_client.get(url)
     except Exception as e:
@@ -202,6 +216,7 @@ def get_url_try(user, user_client, url):
 
 def check_create_post(user_client, response, url,
                       redirect_url, created_object):
+    '''Проверяет создание объекта через форму "post" запросом.'''
     assert response.status_code in (301, 302), (
         f'Проверьте, что со страницы {url} после создания поста, '
         f'перенаправляете на страницу `{redirect_url}`'
@@ -224,6 +239,7 @@ def check_create_post(user_client, response, url,
 
 
 def check_create_get(user_client, url, fields_cnt, fields):
+    '''Проверяет выдачу формы при "get" запросе.'''
     try:
         response = user_client.get(url)
     except Exception as e:

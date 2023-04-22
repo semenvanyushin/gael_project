@@ -20,31 +20,18 @@ def mixer():
 
 
 @pytest.fixture
-def account(user):
-    logo_region = tempfile.NamedTemporaryFile(suffix=".jpg").name
-    return Account.objects.create(
-        organizer=user,
-        login='game@mail.ru',
-        store_region='вариант оплаты',
-        logo_region=logo_region,
-    )
-
-
-@pytest.fixture
-def owner(user, account):
+def owner(user):
     return Owner.objects.create(
         user=user,
-        account=account,
         platform='PS5',
         type_activation='П4',
     )
 
 
 @pytest.fixture
-def game(owner):
+def game():
     logo = tempfile.NamedTemporaryFile(suffix=".jpg").name
     return Game.objects.create(
-        owner=owner,
         logo=logo,
         description='Описание игры',
         rating=8,
@@ -53,10 +40,26 @@ def game(owner):
 
 
 @pytest.fixture
-def post_sale(user, game):
+def account(user, owner, game):
+    logo_region = tempfile.NamedTemporaryFile(suffix=".jpg").name
+    account = Account.objects.create(
+        organizer=user,
+        game=game,
+        login='game@mail.ru',
+        store_region='вариант оплаты',
+        logo_region=logo_region,
+    )
+    account.save()
+    account.owners.add(owner)
+    account.save()
+    return account
+
+
+@pytest.fixture
+def post_sale(user, account):
     return PostSale.objects.create(
         author=user,
-        game=game,
+        account=account,
         price=500,
         type_payment='вариант оплаты',
     )
@@ -73,8 +76,8 @@ def review(user, user_two):
 
 
 @pytest.fixture
-def few_posts_sale(mixer, user, game):
-    posts = mixer.cycle(20).blend(PostSale, author=user, game=game)
+def few_posts_sale(mixer, user, account):
+    posts = mixer.cycle(20).blend(PostSale, author=user, account=account)
     return posts[0]
 
 

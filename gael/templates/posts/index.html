@@ -14,7 +14,7 @@
                 </div>
                 <div class="card-body">
                   <p class="card-text">Сейчас нет игр в продаже</p>
-                  <a class="btn btn-sm btn-primary" href="{% url 'posts:profile' user.username %}" role="button">
+                  <a class="btn btn-sm btn-primary" href="{% url 'posts:profile' request.user.username %}" role="button">
                     Перейти в личный кабинет
                   </a>
                 </div>
