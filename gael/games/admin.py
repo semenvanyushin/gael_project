@@ -22,7 +22,7 @@ class Account(admin.ModelAdmin):
     def get_organizer_username(self, obj):
         return obj.organizer.username
 
-    @admin.display(description='Организатор')
+    @admin.display(description='Игра')
     def get_game_name(self, obj):
         return obj.game.name
 

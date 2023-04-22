@@ -19,7 +19,8 @@ class PostSaleForm(forms.ModelForm):
         user = kwargs.pop('user', None)
         super(PostSaleForm, self).__init__(*args, **kwargs)
         self.fields['account'] = forms.ModelChoiceField(
-            queryset=Account.objects.filter(owners__user=user))
+            queryset=Account.objects.select_related(
+                'organizer').filter(owners__user=user))
         self.fields['account'].empty_label = " Выбери учетную запись "
 
 
