@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'core.apps.CoreConfig',
     'games.apps.GamesConfig',
+    'chats.apps.ChatsConfig',
     'sorl.thumbnail',
     'debug_toolbar',
 ]
@@ -149,3 +150,5 @@ CSRF_FAILURE_VIEW = 'core.views.csrf_failure'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 INTERNAL_IPS = ['127.0.0.1']
+
+PAGINATE_COUNT = 12

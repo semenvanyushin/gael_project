@@ -2,11 +2,9 @@ import tempfile
 
 import pytest
 from django.contrib.auth import get_user_model
+from django.db.models import fields
 
-from tests.utils import (admin_test, char_field, created_date_field,
-                         field_with_foregin_key,
-                         float_field, integer_field,
-                         image_field, text_field)
+from tests.utils import admin_test, check_field
 
 
 try:
@@ -43,22 +41,30 @@ class TestPostSale:
         model_fields = PostSale._meta.fields
 
         field_name = 'price'
-        integer_field(model, model_fields, field_name)
+        field_type = fields.IntegerField
+        check_field(model, model_fields, field_name, field_type)
 
         field_name = 'pub_date'
-        created_date_field(model, model_fields, field_name)
+        field_type = fields.DateTimeField
+        check_field(model, model_fields, field_name, field_type)
 
         field_name = 'author_id'
         related_model = get_user_model()
-        field_with_foregin_key(model, model_fields, field_name, related_model)
+        field_type = fields.related.ForeignKey
+        check_field(model, model_fields, field_name, field_type,
+                    related_model=related_model)
 
         field_name = 'account_id'
         related_model = Account
-        field_with_foregin_key(model, model_fields, field_name, related_model)
+        field_type = fields.related.ForeignKey
+        check_field(model, model_fields, field_name, field_type,
+                    related_model=related_model)
 
         field_name = 'type_payment'
         max_length = 255
-        char_field(model, model_fields, field_name, max_length)
+        field_type = fields.CharField
+        check_field(model, model_fields, field_name, field_type,
+                    max_length=max_length)
 
     @pytest.mark.django_db(transaction=True)
     def test_post_sale_create(self, user, account):
@@ -94,22 +100,30 @@ class TestReview:
         model_fields = Review._meta.fields
 
         field_name = 'pub_date'
-        created_date_field(model, model_fields, field_name)
+        field_type = fields.DateTimeField
+        check_field(model, model_fields, field_name, field_type)
 
         field_name = 'author_id'
         related_model = get_user_model()
-        field_with_foregin_key(model, model_fields, field_name, related_model)
+        field_type = fields.related.ForeignKey
+        check_field(model, model_fields, field_name, field_type,
+                    related_model=related_model)
 
         field_name = 'user_id'
         related_model = get_user_model()
-        field_with_foregin_key(model, model_fields, field_name, related_model)
+        field_type = fields.related.ForeignKey
+        check_field(model, model_fields, field_name, field_type,
+                    related_model=related_model)
 
         field_name = 'score'
         max_length = 2
-        char_field(model, model_fields, field_name, max_length)
+        field_type = fields.CharField
+        check_field(model, model_fields, field_name, field_type,
+                    max_length=max_length)
 
         field_name = 'text'
-        text_field(model, model_fields, field_name)
+        field_type = fields.TextField
+        check_field(model, model_fields, field_name, field_type)
 
     @pytest.mark.django_db(transaction=True)
     def test_review_create(self, user, user_two):
@@ -143,11 +157,14 @@ class TestFavoritePost:
         model_fields = FavoritePost._meta.fields
 
         field_name = 'creation_date'
-        created_date_field(model, model_fields, field_name)
+        field_type = fields.DateTimeField
+        check_field(model, model_fields, field_name, field_type)
 
         field_name = 'user_id'
         related_model = get_user_model()
-        field_with_foregin_key(model, model_fields, field_name, related_model)
+        field_type = fields.related.ForeignKey
+        check_field(model, model_fields, field_name, field_type,
+                    related_model=related_model)
 
     @pytest.mark.django_db(transaction=True)
     def test_favorite_post_create(self, user, post_sale):
@@ -181,24 +198,33 @@ class TestGame:
 
         field_name = 'name'
         max_length = 255
-        char_field(model, model_fields, field_name, max_length)
+        field_type = fields.CharField
+        check_field(model, model_fields, field_name, field_type,
+                    max_length=max_length)
 
         field_name = 'description'
-        text_field(model, model_fields, field_name)
+        field_type = fields.TextField
+        check_field(model, model_fields, field_name, field_type)
 
         field_name = 'release_date'
         max_length = 50
-        char_field(model, model_fields, field_name, max_length)
+        field_type = fields.CharField
+        check_field(model, model_fields, field_name, field_type,
+                    max_length=max_length)
 
         field_name = 'logo'
         upload_to = 'static/logo/%Y/%m/%d/'
-        image_field(model, model_fields, field_name, upload_to)
+        field_type = fields.files.ImageField
+        check_field(model, model_fields, field_name, field_type,
+                    upload_to=upload_to)
 
         field_name = 'rating'
-        float_field(model, model_fields, field_name)
+        field_type = fields.FloatField
+        check_field(model, model_fields, field_name, field_type)
 
         field_name = 'creation_date'
-        created_date_field(model, model_fields, field_name)
+        field_type = fields.DateTimeField
+        check_field(model, model_fields, field_name, field_type)
 
     @pytest.mark.django_db(transaction=True)
     def test_game_create(self, owner):
@@ -238,18 +264,25 @@ class TestOwner:
 
         field_name = 'platform'
         max_length = 100
-        char_field(model, model_fields, field_name, max_length)
+        field_type = fields.CharField
+        check_field(model, model_fields, field_name, field_type,
+                    max_length=max_length)
 
         field_name = 'type_activation'
         max_length = 10
-        char_field(model, model_fields, field_name, max_length)
+        field_type = fields.CharField
+        check_field(model, model_fields, field_name, field_type,
+                    max_length=max_length)
 
         field_name = 'user_id'
         related_model = get_user_model()
-        field_with_foregin_key(model, model_fields, field_name, related_model)
+        field_type = fields.related.ForeignKey
+        check_field(model, model_fields, field_name, field_type,
+                    related_model=related_model)
 
         field_name = 'creation_date'
-        created_date_field(model, model_fields, field_name)
+        field_type = fields.DateTimeField
+        check_field(model, model_fields, field_name, field_type)
 
     @pytest.mark.django_db(transaction=True)
     def test_owner_create(self, user):
@@ -284,26 +317,37 @@ class TestAccount:
 
         field_name = 'login'
         max_length = 255
-        char_field(model, model_fields, field_name, max_length)
+        field_type = fields.CharField
+        check_field(model, model_fields, field_name, field_type,
+                    max_length=max_length)
 
         field_name = 'store_region'
         max_length = 50
-        char_field(model, model_fields, field_name, max_length)
+        field_type = fields.CharField
+        check_field(model, model_fields, field_name, field_type,
+                    max_length=max_length)
 
         field_name = 'logo_region'
         upload_to = 'static/logo_region/%Y/%m/%d/'
-        image_field(model, model_fields, field_name, upload_to)
+        field_type = fields.files.ImageField
+        check_field(model, model_fields, field_name, field_type,
+                    upload_to=upload_to)
 
         field_name = 'organizer_id'
         related_model = get_user_model()
-        field_with_foregin_key(model, model_fields, field_name, related_model)
+        field_type = fields.related.ForeignKey
+        check_field(model, model_fields, field_name, field_type,
+                    related_model=related_model)
 
         field_name = 'game_id'
         related_model = Game
-        field_with_foregin_key(model, model_fields, field_name, related_model)
+        field_type = fields.related.ForeignKey
+        check_field(model, model_fields, field_name, field_type,
+                    related_model=related_model)
 
         field_name = 'creation_date'
-        created_date_field(model, model_fields, field_name)
+        field_type = fields.DateTimeField
+        check_field(model, model_fields, field_name, field_type)
 
     @pytest.mark.django_db(transaction=True)
     def test_account_create(self, user, game, owner):

@@ -3,6 +3,9 @@ import re
 from django.contrib.admin.sites import site
 from django.core.paginator import Page, Paginator
 from django.db.models import fields
+from django.urls import reverse_lazy
+
+from posts.models import PostSale, Review
 
 
 def get_field_from_context(context, field_type):
@@ -65,104 +68,39 @@ def admin_test(model, admin_fields, admin_search_fields, admin_list_filter):
     )
 
 
-def created_date_field(model, model_fields, field_name):
-    '''Проверяет поле с датой и временем.'''
-    created = search_field(model_fields, f'{field_name}')
-    assert created is not None, (
-        'Добавьте дату и время проведения события '
-        f'в `{field_name}` модели `{model}`'
-    )
-    assert type(created) == fields.DateTimeField, (
-        f'Свойство `{field_name}` модели `{model}` '
-        'должно быть датой и временем `DateTimeField`'
-    )
-    assert created.auto_now_add, (
-        f'Свойство `{field_name}` модели `{model}` должно быть `auto_now_add`'
-    )
-
-
-def field_with_foregin_key(model, model_fields, field_name, related_model):
-    '''Проверяет поле со связью один ко многим.'''
+def check_field(model, model_fields, field_name, field_type, max_length=None,
+                related_model=None, upload_to=None):
+    '''Проверяет поле модели.'''
     field = search_field(model_fields, f'{field_name}')
     assert field is not None, (
         f'Добавьте свойство `{field_name}` в модель `{model}`'
     )
-    assert type(field) == fields.related.ForeignKey, (
-        f'Свойство `{field_name}` модели `{model}` '
-        'должно быть ссылкой на другую модель `ForeignKey`'
+    assert type(field) == field_type, (
+        f'Свойство `{field_name}` модели `{model}` должно быть `{field_type}`'
     )
-    assert field.related_model == related_model, (
-        f'Свойство `{field_name}` модели `{model}` '
-        f'должно быть ссылкой на модель `{related_model}`'
-    )
+    if type(field) == fields.related.ForeignKey:
+        assert field.related_model == related_model, (
+            f'Свойство `{field_name}` модели `{model}` '
+            f'должно быть ссылкой на модель `{related_model}`'
+        )
+    if type(field) == fields.DateTimeField:
+        assert field.auto_now_add, (
+            f'Свойство `{field_name}` модели `{model}` '
+            'должно быть `auto_now_add`'
+        )
+    if type(field) == fields.CharField:
+        assert field.max_length == max_length, (
+            f'Задайте максимальную длину `{field_name}` '
+            f'модели `{model}` {max_length}'
+        )
+    if type(field) == fields.files.ImageField:
+        assert field.upload_to == f'{upload_to}', (
+            f"Свойство `{field_name}` модели `{model}` "
+            f"должно быть с атрибутом `upload_to='{upload_to}'`"
+        )
 
 
-def char_field(model, model_fields, field_name, max_length):
-    '''Проверяет поле текста с ограниением количества символов.'''
-    field = search_field(model_fields, f'{field_name}')
-    assert field is not None, (
-        f'Добавьте свойство `{field_name}` в модель `{model}`'
-    )
-    assert type(field) == fields.CharField, (
-        f'Свойство `{field_name}` модели `{model}` должно быть `CharField`'
-    )
-    assert field.max_length == max_length, (
-        f'Задайте максимальную длину `{field_name}` '
-        f'модели `{model}` {max_length}'
-    )
-
-
-def image_field(model, model_fields, field_name, upload_to):
-    '''Проверяет поле с изображением.'''
-    field = search_field(model_fields, f'{field_name}')
-    assert field is not None, (
-        f'Добавьте свойство `{field_name}` в модель `{model}`'
-    )
-    assert type(field) == fields.files.ImageField, (
-        f'Свойство `{field_name}` модели `{model}` должно быть `ImageField`'
-    )
-    assert field.upload_to == f'{upload_to}', (
-        f"Свойство `{field_name}` модели `{model}` "
-        f"должно быть с атрибутом `upload_to='{upload_to}'`"
-    )
-
-
-def text_field(model, model_fields, field_name):
-    '''Проверяет текстовое поле.'''
-    field = search_field(model_fields, f'{field_name}')
-    assert field is not None, (
-        f'Добавьте свойство `{field_name}` в модель `{model}`'
-    )
-    assert type(field) == fields.TextField, (
-        f'Свойство `{field_name}` модели `{model}` должно быть `TextField`'
-    )
-
-
-def integer_field(model, model_fields, field_name):
-    '''Проверяет поле целым числом.'''
-    field = search_field(model_fields, f'{field_name}')
-    assert field is not None, (
-        f'Добавьте название события `{field_name}` модели `{model}`'
-    )
-    assert type(field) == fields.IntegerField, (
-        f'Свойство `{field_name}` модели `{model}` '
-        'должно быть целым числом `IntegerField`'
-    )
-
-
-def float_field(model, model_fields, field_name):
-    '''Проверяет поле с дробным числом.'''
-    field = search_field(model_fields, f'{field_name}')
-    assert field is not None, (
-        f'Добавьте свойство `{field_name}` модели `{model}`'
-    )
-    assert type(field) == fields.FloatField, (
-        f'Свойство `{field_name}` модели `{model}` '
-        'должно быть числом `FloatField`'
-    )
-
-
-def checklist_field(response, field_name, link, type_field):
+def check_form_field(response, field_name, link, type_field):
     '''Проверяет поля в форме.'''
     assert f'{field_name}' in response.context['form'].fields, (
         'Проверьте, что в форме `form` на '
@@ -261,4 +199,51 @@ def check_create_get(user_client, url, fields_cnt, fields):
     )
 
     for item in fields:
-        checklist_field(response, item, url, fields[item])
+        check_form_field(response, item, url, fields[item])
+
+
+def check_delete_review(user, user_two, client, finish_objects_count):
+    '''Проверяет удаление отзыва и права на эту операцию.'''
+    assert Review.objects.count() == 0
+    review_for_delete = Review.objects.create(
+        author=user, user=user_two, score='PV', text='текст отзыва'
+    )
+    assert Review.objects.count() == 1, (
+        'Проверьте модель `Review`, не удается создать пост.'
+    )
+    url = reverse_lazy(
+        'posts:review_delete',
+        kwargs={'username': user_two.username,
+                'review_id': review_for_delete.id}
+    )
+    response = client.post(url)
+    assert response.status_code in (301, 302), (
+        f'Проверьте, что со страницы `{url}` перенаправляете на страницу '
+        'пользователя, если запрос не от автора поста'
+    )
+    assert Review.objects.count() == finish_objects_count, (
+        'Проверьте, что только автор может удалить свой пост.'
+    )
+
+
+def check_delete_post_sale(user, account, client, finish_objects_count):
+    '''Проверяет удаление поста и права на эту операцию.'''
+    assert PostSale.objects.count() == 0
+    post_for_delete = PostSale.objects.create(
+        author=user, account=account,
+        price=800, type_payment='вариант оплаты'
+    )
+    assert PostSale.objects.count() == 1, (
+        'Проверьте модель `PostSale`, не удается создать пост.'
+    )
+    url = reverse_lazy(
+        'posts:post_delete', kwargs={'post_id': post_for_delete.id}
+    )
+    response = client.post(url)
+    assert response.status_code in (301, 302), (
+        f'Проверьте, что со страницы `{url}` перенаправляете на страницу '
+        'пользователя, если запрос не от автора поста'
+    )
+    assert PostSale.objects.count() == finish_objects_count, (
+        'Проверьте, что только автор может удалить свой пост.'
+    )

@@ -2,7 +2,7 @@ import pytest
 from django import forms
 
 from posts.models import PostSale, Review
-from tests.utils import (check_create_post, check_create_get, get_url_try)
+from tests.utils import check_create_post, check_create_get, get_url_try
 
 
 class TestPostSaleCreateView:

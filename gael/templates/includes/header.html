@@ -22,7 +22,7 @@
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
               <li><a class="dropdown-item" href="{% url 'posts:profile' user.username %}">Моя страница</a></li>
-              <li><a class="dropdown-item" href="#">Сообщения</a></li>
+              <li><a class="dropdown-item" href="{% url 'chats:dialogs' %}">Сообщения</a></li>
               <li><a class="dropdown-item" href="{% url 'users:password_change' %}">Изменить пароль</a></li>
               <!-- Кнопка-триггер модального окна -->
               <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#exampleModal"><span style="color:red">Выйти</span></a></li>

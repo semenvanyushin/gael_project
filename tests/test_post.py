@@ -4,8 +4,8 @@ from django import forms
 
 from posts.models import PostSale
 from posts.forms import PostSaleForm
-from tests.utils import get_field_from_context
-from tests.utils import checklist_field
+from tests.utils import (check_delete_post_sale, get_field_from_context,
+                         check_form_field)
 
 
 class TestPostSaleView:
@@ -46,15 +46,15 @@ class TestPostSaleView:
 
         field_name = 'account'
         type_field = forms.models.ModelChoiceField
-        checklist_field(response, field_name, url, type_field)
+        check_form_field(response, field_name, url, type_field)
 
         field_name = 'price'
         type_field = forms.fields.IntegerField
-        checklist_field(response, field_name, url, type_field)
+        check_form_field(response, field_name, url, type_field)
 
         field_name = 'type_payment'
         type_field = forms.fields.CharField
-        checklist_field(response, field_name, url, type_field)
+        check_form_field(response, field_name, url, type_field)
 
     @pytest.mark.django_db(transaction=True)
     def test_post_edit_view_author_post(self, user_client, post_sale):
@@ -90,41 +90,15 @@ class TestPostSaleView:
 
     @pytest.mark.django_db(transaction=True)
     def test_post_delete_view_author_post(self, user, user_client, account):
-        assert PostSale.objects.count() == 0
-        post_for_delete = PostSale.objects.create(
-            author=user, account=account,
-            price=800, type_payment='вариант оплаты'
-        )
-        assert PostSale.objects.count() == 1, (
-            'Проверьте модель `PostSale`, не удается создать пост.'
-        )
-        url = reverse_lazy(
-            'posts:post_delete', kwargs={'post_id': post_for_delete.id}
-        )
-        user_client.post(url)
-        assert PostSale.objects.count() == 0, (
-            'Проверьте, что автор поста может удалить свой пост.'
-        )
+        '''Проверяет удаление поста автором.'''
+        client = user_client
+        finish_objects_count = 0
+        check_delete_post_sale(user, account, client, finish_objects_count)
 
     @pytest.mark.django_db(transaction=True)
     def test_post_delete_view_not_author_post(self, user,
                                               user_two_client, account):
-        assert PostSale.objects.count() == 0
-        post_for_delete = PostSale.objects.create(
-            author=user, account=account,
-            price=800, type_payment='вариант оплаты'
-        )
-        assert PostSale.objects.count() == 1, (
-            'Проверьте модель `PostSale`, не удается создать пост.'
-        )
-        url = reverse_lazy(
-            'posts:post_delete', kwargs={'post_id': post_for_delete.id}
-        )
-        response = user_two_client.post(url)
-        assert response.status_code in (301, 302), (
-            f'Проверьте, что со страницы `{url}` перенаправляете на страницу '
-            'пользователя, если запрос не от автора поста'
-        )
-        assert PostSale.objects.count() == 1, (
-            'Проверьте, что только автор поста может удалить свой пост.'
-        )
+        '''Проверяет удаление поста автора другим пользователем.'''
+        client = user_two_client
+        finish_objects_count = 1
+        check_delete_post_sale(user, account, client, finish_objects_count)

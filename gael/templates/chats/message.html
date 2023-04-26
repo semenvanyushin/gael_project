@@ -1,0 +1,13 @@
+{% url 'posts:profile' message_item.author.username as the_user_url%}
+{% load tz %}
+<div class="card">
+  <div class="card-header">
+    <strong class="list-group-item-heading"><a href="{{ the_user_url }}">{{ message_item.author.username }}</a></strong>
+    <small>{{ message_item.pub_date|utc }}</small>
+  </div>
+  <div class="card-body">
+    <blockquote class="blockquote mb-0">
+      <small>{{ message_item.message|safe }}</small>
+    </blockquote>
+  </div>
+</div>

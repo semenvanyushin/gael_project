@@ -7,7 +7,7 @@
     <small>Игра: <span style="color:blue">{{ post.account.game.name }}</span> ({{ post.account.organizer.username }})</small><br>
     <small>Владелец: <a href="{% url 'posts:profile' post.author.username %}"><span style="color:blue">{{ post.author.username }}</span></a></small><br>
     <small>Цена: <span style="color:blue">{{ post.price }} руб.</span></small></li><br>
-    <small>Вариант оплаты: <span style="color:blue">{{ post.type_payment }}</span></small><br>
+    <small>Оплата: <span style="color:blue">{{ post.type_payment }}</span></small><br>
     <br>
     {% if user.is_authenticated %}
     {% include 'posts/includes/post_buttons.html' %}
