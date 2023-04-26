@@ -3,6 +3,7 @@ import tempfile
 import pytest
 from mixer.backend.django import mixer as _mixer
 
+from chats.models import Chat, Message
 from games.models import Account, Game, Owner
 from posts.models import PostSale, Review
 
@@ -71,6 +72,27 @@ def review(user, user_two):
         user=user_two,
         author=user,
         score='PV',
+        text='текст отзыва',
+    )
+
+
+@pytest.fixture
+def chat(user, user_two):
+    chat = Chat.objects.create(type='D')
+    chat.save()
+    chat.members.add(user)
+    chat.save()
+    chat.members.add(user_two)
+    chat.save()
+    return chat
+
+
+@pytest.fixture
+def message(chat, user):
+    return Message.objects.create(
+        chat=chat,
+        author=user,
+        message='Текст сообщения',
         text='текст отзыва',
     )
 
