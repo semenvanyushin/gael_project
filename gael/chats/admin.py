@@ -13,8 +13,8 @@ class Message(admin.ModelAdmin):
         'pub_date',
         'is_readed',
     )
-    search_fields = ('get_chat', 'pub_date')
-    list_filter = ('author', 'is_readed', 'pub_date')
+    search_fields = ('get_chat', 'pub_date',)
+    list_filter = ('author', 'is_readed', 'pub_date',)
     empty_value_display = '-пусто-'
 
     @admin.display(description='Чат')

@@ -1,6 +1,5 @@
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.utils import timezone
 
 User = get_user_model()
 
@@ -36,7 +35,7 @@ class Message(models.Model):
         verbose_name='Пользователь',
         on_delete=models.CASCADE)
     message = models.TextField('Сообщение')
-    pub_date = models.DateTimeField('Дата сообщения', default=timezone.now)
+    pub_date = models.DateTimeField('Дата сообщения', auto_now_add=True)
     is_readed = models.BooleanField('Прочитано', default=False)
 
     class Meta:
