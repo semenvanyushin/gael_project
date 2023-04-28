@@ -1,13 +1,13 @@
 {% url 'posts:profile' message_item.author.username as the_user_url%}
 {% load tz %}
-<div class="card">
+<div class="card {% if message_item.author != request.user %}border-primary{% endif %}">
   <div class="card-header">
-    <strong class="list-group-item-heading"><a href="{{ the_user_url }}">{{ message_item.author.username }}</a></strong>
-    <small>{{ message_item.pub_date|utc }}</small>
+    <div class="d-sm-flex justify-content-between">
+      <small><a href="{{ the_user_url }}">{% if message_item.author != request.user %}<span style="color:red">{% endif %}{{ message_item.author.username }}</span></a></small>
+      <small>{{ message_item.pub_date|utc }}</small>
+    </div>
   </div>
   <div class="card-body">
-    <blockquote class="blockquote mb-0">
       <small>{{ message_item.message|safe }}</small>
-    </blockquote>
   </div>
 </div>

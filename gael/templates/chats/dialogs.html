@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block title %} Переписка {% endblock %}
 {% block content %}
-<div class="panel">
+<div class="container-sm">
     {% load templatetags %}
     {% load tz %}
     {% if chats.count == 0 %}
@@ -21,10 +21,12 @@
             {% with last_message=chat.message_set.last %}
                 {% get_companion user chat as companion %}
                 <a href="{% url 'chats:messages' chat.id %}">
-                  <div class="card m-1 w-50 {% if companion == last_message.author and not last_message.is_readed %}bg-primary{% endif %}">
+                  <div class="card m-1 {% if companion == last_message.author and not last_message.is_readed %}bg-primary{% endif %}">
                     <div class="card-body">
-                      <h10 class="card-title">{{ companion.username }}</h10>
-                      <span style="color:darkgray"><small>{{ last_message.pub_date|utc }}</small></span><br>
+                      <div class="d-sm-flex justify-content-between">
+                        <h10 class="card-title">{{ companion.username }}</h10>
+                        <span style="color:darkgray"><small>{{ last_message.pub_date|utc }}</small></span>
+                      </div>
                       <small>{{ last_message.message|truncatechars_html:"200"|safe|striptags }}</small>
                     </div>
                   </div>

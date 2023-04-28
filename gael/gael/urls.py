@@ -23,6 +23,7 @@ handler500 = 'core.views.server_error'
 handler403 = 'core.views.permission_denied'
 
 urlpatterns = [
+    path('ckeditor5/', include('django_ckeditor_5.urls')),
     path('admin/', admin.site.urls),
     path('', include('posts.urls', namespace='posts')),
     path('dialogs/', include('chats.urls', namespace='chats')),

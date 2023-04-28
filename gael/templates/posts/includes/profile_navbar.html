@@ -10,7 +10,7 @@
       </li>
       {% if request.user != author %}
       <li class="nav-item">
-        <a class="nav-link" href="" role="button"><small>Личное сообщение</small></a>
+        <a class="nav-link" href="{% url 'chats:create_dialog' author.id %}" role="button"><small>Личное сообщение</small></a>
       </li>
       {% else %}
         <li class="nav-item">

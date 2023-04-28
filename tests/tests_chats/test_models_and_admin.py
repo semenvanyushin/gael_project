@@ -1,5 +1,6 @@
 import pytest
 from django.contrib.auth import get_user_model
+from django_ckeditor_5.fields import CKEditor5Field
 from django.db.models import fields
 
 from tests.utils import admin_test, check_field
@@ -65,7 +66,7 @@ class TestMessage:
                     related_model=related_model)
 
         field_name = 'message'
-        field_type = fields.TextField
+        field_type = CKEditor5Field
         check_field(model, model_fields, field_name, field_type)
 
         field_name = 'pub_date'

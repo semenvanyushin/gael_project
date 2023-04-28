@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django_ckeditor_5.fields import CKEditor5Field
 from django.db import models
 
 User = get_user_model()
@@ -34,7 +35,7 @@ class Message(models.Model):
         User,
         verbose_name='Пользователь',
         on_delete=models.CASCADE)
-    message = models.TextField('Сообщение')
+    message = CKEditor5Field('Сообщение', config_name='extends')
     pub_date = models.DateTimeField('Дата сообщения', auto_now_add=True)
     is_readed = models.BooleanField('Прочитано', default=False)
 

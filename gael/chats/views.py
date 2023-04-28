@@ -1,4 +1,4 @@
-from typing import Counter
+from django.db.models.aggregates import Count
 from django.shortcuts import redirect, render
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse
@@ -20,7 +20,7 @@ class CreateDialogView(LoginRequiredMixin, View):
     def get(self, request, user_id):
         chats = Chat.objects.filter(
             members__in=[request.user.id, user_id],
-            type=Chat.DIALOG).annotate(c=Counter('members')).filter(c=2)
+            type=Chat.DIALOG).annotate(c=Count('members')).filter(c=2)
         if chats.count() == 0:
             chat = Chat.objects.create()
             chat.members.add(request.user)
