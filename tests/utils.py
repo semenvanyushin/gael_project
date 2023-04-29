@@ -68,36 +68,36 @@ def admin_test(model, admin_fields, admin_search_fields, admin_list_filter):
     )
 
 
-def check_field(model, model_fields, field_name, field_type, max_length=None,
-                related_model=None, upload_to=None):
+def check_field(model, model_fields, **kwargs):
     '''Проверяет поле модели.'''
-    field = search_field(model_fields, f'{field_name}')
-    assert field is not None, (
-        f'Добавьте свойство `{field_name}` в модель `{model}`'
-    )
-    assert type(field) == field_type, (
-        f'Свойство `{field_name}` модели `{model}` должно быть `{field_type}`'
-    )
-    if type(field) == fields.related.ForeignKey:
-        assert field.related_model == related_model, (
-            f'Свойство `{field_name}` модели `{model}` '
-            f'должно быть ссылкой на модель `{related_model}`'
+    for key, value in kwargs.items():
+        field = search_field(model_fields, f'{key}')
+        assert field is not None, (
+            f'Добавьте свойство `{key}` в модель `{model}`'
         )
-    if type(field) == fields.DateTimeField:
-        assert field.auto_now_add, (
-            f'Свойство `{field_name}` модели `{model}` '
-            'должно быть `auto_now_add`'
+        assert type(field) == value[0], (
+            f'Свойство `{key}` модели `{model}` должно быть `{value[0]}`'
         )
-    if type(field) == fields.CharField:
-        assert field.max_length == max_length, (
-            f'Задайте максимальную длину `{field_name}` '
-            f'модели `{model}` {max_length}'
-        )
-    if type(field) == fields.files.ImageField:
-        assert field.upload_to == f'{upload_to}', (
-            f"Свойство `{field_name}` модели `{model}` "
-            f"должно быть с атрибутом `upload_to='{upload_to}'`"
-        )
+        if type(field) == fields.related.ForeignKey:
+            assert field.related_model == value[1], (
+                f'Свойство `{key}` модели `{model}` '
+                f'должно быть ссылкой на модель `{value[1]}`'
+            )
+        if type(field) == fields.DateTimeField:
+            assert field.auto_now_add, (
+                f'Свойство `{key}` модели `{model}` '
+                'должно быть `auto_now_add`'
+            )
+        if type(field) == fields.CharField:
+            assert field.max_length == value[1], (
+                f'Задайте максимальную длину `{key}` '
+                f'модели `{model}` {value[1]}'
+            )
+        if type(field) == fields.files.ImageField:
+            assert field.upload_to == f'{value[1]}', (
+                f"Свойство `{key}` модели `{model}` "
+                f"должно быть с атрибутом `upload_to='{value[1]}'`"
+            )
 
 
 def check_form_field(response, field_name, link, type_field):

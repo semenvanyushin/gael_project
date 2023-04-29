@@ -21,12 +21,10 @@ class TestChat:
     def test_chat_model(self):
         model = Chat
         model_fields = Chat._meta.fields
-
-        field_name = 'type'
-        max_length = 1
-        field_type = fields.CharField
-        check_field(model, model_fields, field_name, field_type,
-                    max_length=max_length)
+        field_name_and_type = {
+            'type': (fields.CharField, 1)
+        }
+        check_field(model, model_fields, **field_name_and_type)
 
     @pytest.mark.django_db(transaction=True)
     def test_chat_create(self, user):
@@ -52,30 +50,14 @@ class TestMessage:
     def test_message_model(self):
         model = Message
         model_fields = Message._meta.fields
-
-        field_name = 'chat_id'
-        related_model = Chat
-        field_type = fields.related.ForeignKey
-        check_field(model, model_fields, field_name, field_type,
-                    related_model=related_model)
-
-        field_name = 'author_id'
-        related_model = get_user_model()
-        field_type = fields.related.ForeignKey
-        check_field(model, model_fields, field_name, field_type,
-                    related_model=related_model)
-
-        field_name = 'message'
-        field_type = CKEditor5Field
-        check_field(model, model_fields, field_name, field_type)
-
-        field_name = 'pub_date'
-        field_type = fields.DateTimeField
-        check_field(model, model_fields, field_name, field_type)
-
-        field_name = 'is_readed'
-        field_type = fields.BooleanField
-        check_field(model, model_fields, field_name, field_type)
+        field_name_and_type = {
+            'message': (CKEditor5Field,),
+            'pub_date': (fields.DateTimeField,),
+            'chat_id': (fields.related.ForeignKey, Chat),
+            'author_id': (fields.related.ForeignKey, get_user_model()),
+            'is_readed': (fields.BooleanField,)
+        }
+        check_field(model, model_fields, **field_name_and_type)
 
     @pytest.mark.django_db(transaction=True)
     def test_message_create(self, chat, user):

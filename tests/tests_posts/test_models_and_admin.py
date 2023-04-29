@@ -25,32 +25,14 @@ class TestPostSale:
     def test_post_sale_model(self):
         model = PostSale
         model_fields = PostSale._meta.fields
-
-        field_name = 'price'
-        field_type = fields.IntegerField
-        check_field(model, model_fields, field_name, field_type)
-
-        field_name = 'pub_date'
-        field_type = fields.DateTimeField
-        check_field(model, model_fields, field_name, field_type)
-
-        field_name = 'author_id'
-        related_model = get_user_model()
-        field_type = fields.related.ForeignKey
-        check_field(model, model_fields, field_name, field_type,
-                    related_model=related_model)
-
-        field_name = 'account_id'
-        related_model = Account
-        field_type = fields.related.ForeignKey
-        check_field(model, model_fields, field_name, field_type,
-                    related_model=related_model)
-
-        field_name = 'type_payment'
-        max_length = 255
-        field_type = fields.CharField
-        check_field(model, model_fields, field_name, field_type,
-                    max_length=max_length)
+        field_name_and_type = {
+            'price': (fields.IntegerField,),
+            'pub_date': (fields.DateTimeField,),
+            'author_id': (fields.related.ForeignKey, get_user_model()),
+            'account_id': (fields.related.ForeignKey, Account),
+            'type_payment': (fields.CharField, 255)
+        }
+        check_field(model, model_fields, **field_name_and_type)
 
     @pytest.mark.django_db(transaction=True)
     def test_post_sale_create(self, user, account):
@@ -84,32 +66,14 @@ class TestReview:
     def test_review_model(self):
         model = Review
         model_fields = Review._meta.fields
-
-        field_name = 'pub_date'
-        field_type = fields.DateTimeField
-        check_field(model, model_fields, field_name, field_type)
-
-        field_name = 'author_id'
-        related_model = get_user_model()
-        field_type = fields.related.ForeignKey
-        check_field(model, model_fields, field_name, field_type,
-                    related_model=related_model)
-
-        field_name = 'user_id'
-        related_model = get_user_model()
-        field_type = fields.related.ForeignKey
-        check_field(model, model_fields, field_name, field_type,
-                    related_model=related_model)
-
-        field_name = 'score'
-        max_length = 2
-        field_type = fields.CharField
-        check_field(model, model_fields, field_name, field_type,
-                    max_length=max_length)
-
-        field_name = 'text'
-        field_type = fields.TextField
-        check_field(model, model_fields, field_name, field_type)
+        field_name_and_type = {
+            'pub_date': (fields.DateTimeField,),
+            'user_id': (fields.related.ForeignKey, get_user_model()),
+            'author_id': (fields.related.ForeignKey, get_user_model()),
+            'score': (fields.CharField, 2),
+            'text': (fields.TextField,)
+        }
+        check_field(model, model_fields, **field_name_and_type)
 
     @pytest.mark.django_db(transaction=True)
     def test_review_create(self, user, user_two):
@@ -141,16 +105,11 @@ class TestFavoritePost:
     def test_favorite_post_model(self):
         model = FavoritePost
         model_fields = FavoritePost._meta.fields
-
-        field_name = 'creation_date'
-        field_type = fields.DateTimeField
-        check_field(model, model_fields, field_name, field_type)
-
-        field_name = 'user_id'
-        related_model = get_user_model()
-        field_type = fields.related.ForeignKey
-        check_field(model, model_fields, field_name, field_type,
-                    related_model=related_model)
+        field_name_and_type = {
+            'creation_date': (fields.DateTimeField,),
+            'user_id': (fields.related.ForeignKey, get_user_model())
+        }
+        check_field(model, model_fields, **field_name_and_type)
 
     @pytest.mark.django_db(transaction=True)
     def test_favorite_post_create(self, user, post_sale):

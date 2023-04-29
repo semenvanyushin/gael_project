@@ -26,39 +26,18 @@ class TestGame:
     def test_game_model(self):
         model = Game
         model_fields = Game._meta.fields
-
-        field_name = 'name'
-        max_length = 255
-        field_type = fields.CharField
-        check_field(model, model_fields, field_name, field_type,
-                    max_length=max_length)
-
-        field_name = 'description'
-        field_type = fields.TextField
-        check_field(model, model_fields, field_name, field_type)
-
-        field_name = 'release_date'
-        max_length = 50
-        field_type = fields.CharField
-        check_field(model, model_fields, field_name, field_type,
-                    max_length=max_length)
-
-        field_name = 'logo'
-        upload_to = 'static/logo/%Y/%m/%d/'
-        field_type = fields.files.ImageField
-        check_field(model, model_fields, field_name, field_type,
-                    upload_to=upload_to)
-
-        field_name = 'rating'
-        field_type = fields.FloatField
-        check_field(model, model_fields, field_name, field_type)
-
-        field_name = 'creation_date'
-        field_type = fields.DateTimeField
-        check_field(model, model_fields, field_name, field_type)
+        field_name_and_type = {
+            'rating': (fields.FloatField,),
+            'creation_date': (fields.DateTimeField,),
+            'name': (fields.CharField, 255),
+            'description': (fields.TextField,),
+            'release_date': (fields.CharField, 50),
+            'logo': (fields.files.ImageField, 'static/logo/%Y/%m/%d/'),
+        }
+        check_field(model, model_fields, **field_name_and_type)
 
     @pytest.mark.django_db(transaction=True)
-    def test_game_create(self, owner):
+    def test_game_create(self):
         name = 'Название игры'
         description = 'Описание игры'
         rating = 10
@@ -92,28 +71,13 @@ class TestOwner:
     def test_owner_model(self):
         model = Owner
         model_fields = Owner._meta.fields
-
-        field_name = 'platform'
-        max_length = 100
-        field_type = fields.CharField
-        check_field(model, model_fields, field_name, field_type,
-                    max_length=max_length)
-
-        field_name = 'type_activation'
-        max_length = 10
-        field_type = fields.CharField
-        check_field(model, model_fields, field_name, field_type,
-                    max_length=max_length)
-
-        field_name = 'user_id'
-        related_model = get_user_model()
-        field_type = fields.related.ForeignKey
-        check_field(model, model_fields, field_name, field_type,
-                    related_model=related_model)
-
-        field_name = 'creation_date'
-        field_type = fields.DateTimeField
-        check_field(model, model_fields, field_name, field_type)
+        field_name_and_type = {
+            'platform': (fields.CharField, 100),
+            'creation_date': (fields.DateTimeField,),
+            'type_activation': (fields.CharField, 10),
+            'user_id': (fields.related.ForeignKey, get_user_model()),
+        }
+        check_field(model, model_fields, **field_name_and_type)
 
     @pytest.mark.django_db(transaction=True)
     def test_owner_create(self, user):
@@ -145,40 +109,16 @@ class TestAccount:
     def test_account_model(self):
         model = Account
         model_fields = Account._meta.fields
-
-        field_name = 'login'
-        max_length = 255
-        field_type = fields.CharField
-        check_field(model, model_fields, field_name, field_type,
-                    max_length=max_length)
-
-        field_name = 'store_region'
-        max_length = 50
-        field_type = fields.CharField
-        check_field(model, model_fields, field_name, field_type,
-                    max_length=max_length)
-
-        field_name = 'logo_region'
-        upload_to = 'static/logo_region/%Y/%m/%d/'
-        field_type = fields.files.ImageField
-        check_field(model, model_fields, field_name, field_type,
-                    upload_to=upload_to)
-
-        field_name = 'organizer_id'
-        related_model = get_user_model()
-        field_type = fields.related.ForeignKey
-        check_field(model, model_fields, field_name, field_type,
-                    related_model=related_model)
-
-        field_name = 'game_id'
-        related_model = Game
-        field_type = fields.related.ForeignKey
-        check_field(model, model_fields, field_name, field_type,
-                    related_model=related_model)
-
-        field_name = 'creation_date'
-        field_type = fields.DateTimeField
-        check_field(model, model_fields, field_name, field_type)
+        field_name_and_type = {
+            'login': (fields.CharField, 255),
+            'creation_date': (fields.DateTimeField,),
+            'store_region': (fields.CharField, 50),
+            'organizer_id': (fields.related.ForeignKey, get_user_model()),
+            'game_id': (fields.related.ForeignKey, Game),
+            'logo_region': (fields.files.ImageField,
+                            'static/logo_region/%Y/%m/%d/'),
+        }
+        check_field(model, model_fields, **field_name_and_type)
 
     @pytest.mark.django_db(transaction=True)
     def test_account_create(self, user, game, owner):
