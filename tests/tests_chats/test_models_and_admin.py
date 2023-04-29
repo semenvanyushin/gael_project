@@ -63,13 +63,12 @@ class TestMessage:
     def test_message_create(self, chat, user):
         message = 'Тестовый текст'
         assert Message.objects.count() == 0
-        review = Message.objects.create(
-            chat=chat, author=user, message=message, is_readed=False
-        )
+        test_message = Message.objects.create(
+            chat=chat, author=user, message=message, is_readed=False)
         assert Message.objects.count() == 1
         assert Message.objects.get(
             chat=chat, author=user, message=message, is_readed=False
-        ).pk == review.pk
+        ).pk == test_message.pk
 
     def test_message_admin(self):
         model = Message

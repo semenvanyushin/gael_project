@@ -41,8 +41,7 @@ class TestPostSale:
         assert PostSale.objects.count() == 0
         post_sale = PostSale.objects.create(
             price=price, author=user,
-            account=account, type_payment=type_payment
-        )
+            account=account, type_payment=type_payment)
         assert PostSale.objects.count() == 1
         assert PostSale.objects.get(
             price=price, author=user,
@@ -51,10 +50,8 @@ class TestPostSale:
 
     def test_post_sale_admin(self):
         model = PostSale
-        post_sale_admin_fields = (
-            'get_username', 'get_account_login',
-            'price', 'type_payment', 'pub_date'
-        )
+        post_sale_admin_fields = ('get_username', 'get_account_login',
+                                  'price', 'type_payment', 'pub_date')
         post_sale_admin_search_fields = ('get_account_login', 'pub_date')
         post_sale_admin_list_filter = ('account', 'pub_date')
         admin_test(model, post_sale_admin_fields,
@@ -80,9 +77,8 @@ class TestReview:
         text = 'Тестовый текст'
         score = 'PV'
         assert Review.objects.count() == 0
-        review = Review.objects.create(
-            user=user_two, author=user, text=text, score=score
-        )
+        review = Review.objects.create(user=user_two, author=user,
+                                       text=text, score=score)
         assert Review.objects.count() == 1
         assert Review.objects.get(
             user=user_two.id, author=user.id, text=text, score=score
@@ -92,8 +88,7 @@ class TestReview:
         model = Review
         review_admin_fields = (
             'id', 'get_user_username', 'get_author_username',
-            'text', 'score', 'pub_date'
-        )
+            'text', 'score', 'pub_date')
         review_admin_search_fields = ('user', 'author', 'score')
         review_admin_list_filter = ('user', 'author', 'pub_date')
         admin_test(model, review_admin_fields,
@@ -125,9 +120,8 @@ class TestFavoritePost:
 
     def test_favorite_post_admin(self):
         model = FavoritePost
-        favorite_post_admin_fields = (
-            'get_username', 'get_post_sale', 'creation_date'
-        )
+        favorite_post_admin_fields = ('get_username', 'get_post_sale',
+                                      'creation_date')
         favorite_post_admin_search_fields = ('get_post_sale',)
         favorite_post_admin_list_filter = ('creation_date',)
         admin_test(model, favorite_post_admin_fields,

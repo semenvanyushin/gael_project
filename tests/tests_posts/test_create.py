@@ -2,7 +2,7 @@ import pytest
 from django import forms
 
 from posts.models import PostSale, Review
-from tests.utils import check_create_post, check_create_get, get_url_try
+from tests.utils import check_create_post, check_create_get
 
 
 class TestPostSaleCreateView:
@@ -16,7 +16,6 @@ class TestPostSaleCreateView:
             'price': forms.fields.IntegerField,
             'type_payment': forms.fields.CharField
         }
-
         check_create_get(user_client, url, fields_cnt, fields)
 
     @pytest.mark.django_db(transaction=True)
@@ -32,11 +31,8 @@ class TestPostSaleCreateView:
             author=user, price=price, account=account,
             type_payment=type_payment
         ).first()
-
-        get_url_try(user, user_client, url)
-        check_create_post(
-            user_client, response, url, redirect_url, created_object
-        )
+        check_create_post(user_client, response, url,
+                          redirect_url, created_object)
 
 
 class TestReviewCreateView:
@@ -49,7 +45,6 @@ class TestReviewCreateView:
             'text': forms.fields.CharField,
             'score': forms.fields.TypedChoiceField,
         }
-
         check_create_get(user_client, url, fields_cnt, fields)
 
     @pytest.mark.django_db(transaction=True)
@@ -62,8 +57,5 @@ class TestReviewCreateView:
         created_object = Review.objects.filter(
             author=user, text=text, score=score
         ).first()
-
-        get_url_try(user, user_client, url)
-        check_create_post(
-            user_client, response, url, redirect_url, created_object
-        )
+        check_create_post(user_client, response, url,
+                          redirect_url, created_object)

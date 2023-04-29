@@ -10,15 +10,13 @@ class TestCustomErrorPages:
         response = client.get(url_invalid)
         assert response.status_code == code, (
             'Убедитесь, что для несуществующих адресов страниц, '
-            f'сервер возвращает код {code}'
-        )
+            f'сервер возвращает код {code}')
         try:
             from gael.urls import handler404
         except ImportError:
             assert False, (
                 f'Убедитесь, что для страниц, возвращающих код {code}, '
-                'настроен кастомный шаблон'
-            )
+                'настроен кастомный шаблон')
 
     @pytest.mark.django_db(transaction=True)
     def test_custom_500(self):
@@ -28,8 +26,7 @@ class TestCustomErrorPages:
         except ImportError:
             assert False, (
                 f'Убедитесь, что для страниц, возвращающих код {code}, '
-                'настроен кастомный шаблон'
-            )
+                'настроен кастомный шаблон')
 
     @pytest.mark.django_db(transaction=True)
     def test_custom_403(self):
@@ -39,5 +36,4 @@ class TestCustomErrorPages:
         except ImportError:
             assert False, (
                 f'Убедитесь, что для страниц, возвращающих код {code}, '
-                'настроен кастомный шаблон'
-            )
+                'настроен кастомный шаблон')
