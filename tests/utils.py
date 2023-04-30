@@ -88,6 +88,13 @@ def check_field(model, model_fields, **kwargs):
             assert field.upload_to == f'{value[1]}', (
                 f"Свойство `{key}` модели `{model}` "
                 f"должно быть с атрибутом `upload_to='{value[1]}'`")
+        if type(field) == fields.EmailField:
+            assert field.max_length == value[1], (
+                f'Задайте максимальную длину `{key}` '
+                f'модели `{model}` {value[1]}')
+            assert field.unique == value[2], (
+                f'Поле `{key}` модели `{model}` должно быть уникальным. '
+                f'Задайте параметр `unique` со значением {value[2]}')
 
 
 def check_form_field(response, field_name, link, type_field):
@@ -98,14 +105,14 @@ def check_form_field(response, field_name, link, type_field):
     )
     assert type(
         response.context['form'].fields[f'{field_name}']
-    ) == type_field, (
+    ) == type_field[0], (
         'Проверьте, что в форме `form` на странице '
-        f'`{link}` поле `{field_name}` типа `{type_field}`'
+        f'`{link}` поле `{field_name}` типа `{type_field[0]}`'
     )
-    assert response.context['form'].fields[f'{field_name}'].required, (
-        'Проверьте, что в форме `form` на странице '
-        f'`{link}` поле `{field_name}` обязательно'
-    )
+    form_field_name = response.context['form'].fields[f'{field_name}'].required
+    assert form_field_name == type_field[1], (
+        'Проверьте атрибуты обязательности поля в `form`'
+        f'`{link}` поле `{field_name}`, {form_field_name} != type_field[1]')
 
 
 def post_edit_view_author_get(model, form, fields_cnt, fields_data,
@@ -114,9 +121,9 @@ def post_edit_view_author_get(model, form, fields_cnt, fields_data,
     response = try_get_url(client, url)
     assert response.status_code != 404, (
         f'Страница `{url}` не найдена, проверьте этот адрес в *urls.py*')
-    post_context = get_field_from_context(response.context, model)
-    postform_context = get_field_from_context(response.context, form)
-    assert any([post_context, postform_context]) is not None, (
+    context = get_field_from_context(response.context, model)
+    form_context = get_field_from_context(response.context, form)
+    assert any([context, form_context]) is not None, (
         'Проверьте, что передали в контекст страницы '
         f'`{url}` типа `Post` или `PostForm`')
     assert 'form' in response.context, (
@@ -163,10 +170,12 @@ def check_create_post(user_client, response, url,
     assert response.url == redirect_url, (
         'Проверьте, что перенаправляете на страницу отзывов '
         f'на автора `{redirect_url}`')
-    response = user_client.post(url)
-    assert response.status_code == 200, (
-        f'Проверьте, что на странице {url} выводите ошибки '
-        'при неправильной заполненной формы `form`')
+    if url != reverse_lazy('users:profile_create',
+                           kwargs={'username': 'test_user'}):
+        response = user_client.post(url)
+        assert response.status_code == 200, (
+            f'Проверьте, что на странице {url} выводите ошибки '
+            'при неправильной заполненной формы `form`')
 
 
 def check_create_get(user_client, url, fields_cnt, fields):

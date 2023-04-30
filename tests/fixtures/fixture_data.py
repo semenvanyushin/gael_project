@@ -6,6 +6,7 @@ from mixer.backend.django import mixer as _mixer
 from chats.models import Chat, Message
 from games.models import Account, Game, Owner
 from posts.models import PostSale, Review
+from users.models import AdditionsToTheProfile
 
 
 @pytest.fixture()
@@ -73,6 +74,16 @@ def review(user, user_two):
         author=user,
         score='PV',
         text='текст отзыва',
+    )
+
+
+@pytest.fixture
+def user_profile(user):
+    avatar = tempfile.NamedTemporaryFile(suffix=".jpg").name
+    return AdditionsToTheProfile.objects.create(
+        user=user,
+        avatar=avatar,
+        telegram='@telegram',
     )
 
 

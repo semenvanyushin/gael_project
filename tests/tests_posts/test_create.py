@@ -12,9 +12,9 @@ class TestPostSaleCreateView:
         url = '/create/'
         fields_cnt = 3
         fields = {
-            'account': forms.models.ModelChoiceField,
-            'price': forms.fields.IntegerField,
-            'type_payment': forms.fields.CharField
+            'account': (forms.models.ModelChoiceField, True),
+            'price': (forms.fields.IntegerField, True),
+            'type_payment': (forms.fields.CharField, True)
         }
         check_create_get(user_client, url, fields_cnt, fields)
 
@@ -42,8 +42,8 @@ class TestReviewCreateView:
         url = f'/profile/{user.username}/reviews/create/'
         fields_cnt = 2
         fields = {
-            'text': forms.fields.CharField,
-            'score': forms.fields.TypedChoiceField,
+            'text': (forms.fields.CharField, True),
+            'score': (forms.fields.TypedChoiceField, True),
         }
         check_create_get(user_client, url, fields_cnt, fields)
 

@@ -17,9 +17,9 @@ class TestPostSaleView:
         model = PostSale
         form = PostSaleForm
         fields_data = {
-            'account': forms.models.ModelChoiceField,
-            'price': forms.fields.IntegerField,
-            'type_payment': forms.fields.CharField
+            'account': (forms.models.ModelChoiceField, True),
+            'price': (forms.fields.IntegerField, True),
+            'type_payment': (forms.fields.CharField, True)
         }
         post_edit_view_author_get(model, form, fields_cnt, fields_data,
                                   user_client, url)

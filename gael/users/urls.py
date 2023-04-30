@@ -44,4 +44,10 @@ urlpatterns = [
          PasswordResetCompleteView.as_view(
              template_name='users/password_reset_complete.html'),
          name='password_reset_complete'),
+    path('profile/<int:profile_id>/edit/',
+         views.AdditionsToTheProfileUpdate.as_view(), name='profile_edit'),
+    path('profile/<str:username>/create/',
+         views.AdditionsToTheProfileCreate.as_view(), name='profile_create'),
+    path('profile/<str:username>/',
+         views.AdditionsToTheProfile.as_view(), name='user_profile'),
 ]
